@@ -1,35 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { X, Search, Info, Upload, FileText, CheckCircle2, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Info, Upload, FileText, CheckCircle2, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 
-interface WorkflowSetupProps {
-  onClose: () => void;
-  onStart: () => void;
+interface LandingPageProps {
+  onRunAnalysis: () => void;
 }
 
-export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
+export function LandingPage({ onRunAnalysis }: LandingPageProps) {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [targetCompany, setTargetCompany] = useState('NovaPulse Medical');
-  
-  // Fake state for generated filters
+
   const [hardFilters, setHardFilters] = useState({
     dealSize: '> $50M',
     geography: 'North America, Europe',
     dealType: 'M&A, Buyout',
-    recency: 'Last 5 years'
+    recency: 'Last 5 years',
   });
-  
+
   const [softFilters, setSoftFilters] = useState({
-    companyBrief: 'Companies specializing in non-invasive respiratory monitoring hardware and software for ICU and home-care settings.',
-    transactionBrief: 'Strategic acquisitions of high-growth medtech companies with proprietary sensor technology or AI-driven diagnostics.'
+    companyBrief:
+      'Companies specializing in non-invasive respiratory monitoring hardware and software for ICU and home-care settings.',
+    transactionBrief:
+      'Strategic acquisitions of high-growth medtech companies with proprietary sensor technology or AI-driven diagnostics.',
   });
 
   const handleNext = () => {
     if (step === 1) {
       setIsLoading(true);
-      // Simulate AI generation
       setTimeout(() => {
         setIsLoading(false);
         setStep(2);
@@ -44,32 +43,23 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]"
-      >
+    <div className="flex-1 flex flex-col items-center justify-center bg-gray-50/50 px-6 py-8 overflow-y-auto">
+      <div className="w-full max-w-2xl bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-gray-100 flex justify-between items-start flex-shrink-0">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="bg-indigo-100 p-1.5 rounded-lg">
-                <Search className="w-5 h-5 text-indigo-600" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Precedent Transactions Analysis</h2>
+        <div className="p-6 border-b border-gray-100">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="bg-indigo-100 p-1.5 rounded-lg">
+              <Search className="w-5 h-5 text-indigo-600" />
             </div>
-            <p className="text-gray-500 text-sm">Automated deal comps workflow</p>
+            <h2 className="text-xl font-semibold text-gray-900">Precedent Transactions Analysis</h2>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X className="w-5 h-5" />
-          </button>
+          <p className="text-gray-500 text-sm">Automated deal comps workflow</p>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-gray-100 h-1 flex-shrink-0">
-          <div 
-            className="bg-indigo-600 h-1 transition-all duration-300 ease-in-out" 
+        <div className="w-full bg-gray-100 h-1">
+          <div
+            className="bg-indigo-600 h-1 transition-all duration-300 ease-in-out"
             style={{ width: `${(step / 3) * 100}%` }}
           />
         </div>
@@ -78,7 +68,7 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
         <div className="flex-1 overflow-y-auto p-6">
           <AnimatePresence mode="wait">
             {step === 1 && (
-              <motion.div 
+              <motion.div
                 key="step1"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -87,11 +77,11 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
               >
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium text-gray-900">1. Select Target & Source</h3>
-                  
+
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Target Company / Sector</label>
-                    <input 
-                      type="text" 
+                    <label className="block text-sm font-medium text-gray-700">Target Company</label>
+                    <input
+                      type="text"
                       value={targetCompany}
                       onChange={(e) => setTargetCompany(e.target.value)}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
@@ -117,7 +107,7 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
                         <FileText className="w-5 h-5 text-red-500 mr-3" />
                         <div className="flex-1">
                           <div className="text-sm font-medium text-gray-900">NovaPulse_CIM_Final.pdf</div>
-                          <div className="text-xs text-gray-500">2.4 MB • Uploaded 2 hours ago</div>
+                          <div className="text-xs text-gray-500">2.4 MB · Uploaded 2 hours ago</div>
                         </div>
                         <CheckCircle2 className="w-5 h-5 text-indigo-600" />
                       </div>
@@ -128,7 +118,7 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
             )}
 
             {step === 2 && (
-              <motion.div 
+              <motion.div
                 key="step2"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -146,43 +136,43 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
 
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
                     <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
                       Hard Filters
                     </h4>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <label className="text-xs text-gray-500 uppercase tracking-wide">Deal Size</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={hardFilters.dealSize}
-                          onChange={(e) => setHardFilters({...hardFilters, dealSize: e.target.value})}
+                          onChange={(e) => setHardFilters({ ...hardFilters, dealSize: e.target.value })}
                           className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs text-gray-500 uppercase tracking-wide">Geography</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={hardFilters.geography}
-                          onChange={(e) => setHardFilters({...hardFilters, geography: e.target.value})}
+                          onChange={(e) => setHardFilters({ ...hardFilters, geography: e.target.value })}
                           className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs text-gray-500 uppercase tracking-wide">Deal Type</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={hardFilters.dealType}
-                          onChange={(e) => setHardFilters({...hardFilters, dealType: e.target.value})}
+                          onChange={(e) => setHardFilters({ ...hardFilters, dealType: e.target.value })}
                           className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs text-gray-500 uppercase tracking-wide">Recency</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={hardFilters.recency}
-                          onChange={(e) => setHardFilters({...hardFilters, recency: e.target.value})}
+                          onChange={(e) => setHardFilters({ ...hardFilters, recency: e.target.value })}
                           className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
@@ -191,23 +181,23 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
 
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
                     <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
                       Soft Filters (Context)
                     </h4>
                     <div className="space-y-3">
                       <div className="space-y-1">
                         <label className="text-xs text-gray-500 uppercase tracking-wide">Company Brief</label>
-                        <textarea 
+                        <textarea
                           value={softFilters.companyBrief}
-                          onChange={(e) => setSoftFilters({...softFilters, companyBrief: e.target.value})}
+                          onChange={(e) => setSoftFilters({ ...softFilters, companyBrief: e.target.value })}
                           className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-indigo-500 min-h-[80px]"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs text-gray-500 uppercase tracking-wide">Transaction Brief</label>
-                        <textarea 
+                        <textarea
                           value={softFilters.transactionBrief}
-                          onChange={(e) => setSoftFilters({...softFilters, transactionBrief: e.target.value})}
+                          onChange={(e) => setSoftFilters({ ...softFilters, transactionBrief: e.target.value })}
                           className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-indigo-500 min-h-[80px]"
                         />
                       </div>
@@ -218,7 +208,7 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
             )}
 
             {step === 3 && (
-              <motion.div 
+              <motion.div
                 key="step3"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -227,11 +217,12 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
               >
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium text-gray-900">3. Validation Summary</h3>
-                  
+
                   <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4 flex gap-3">
                     <Info className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-indigo-800">
-                      The system will search for precedent transactions matching these criteria. You can refine these filters later in the dashboard.
+                      The system will search for precedent transactions matching these criteria. You can refine these
+                      filters later in the dashboard.
                     </div>
                   </div>
 
@@ -248,7 +239,10 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
                       <span className="text-sm text-gray-500 block mb-2">Hard Filters</span>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(hardFilters).map(([key, value]) => (
-                          <span key={key} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                          <span
+                            key={key}
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200"
+                          >
                             {value}
                           </span>
                         ))}
@@ -256,9 +250,7 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
                     </div>
                     <div className="p-4">
                       <span className="text-sm text-gray-500 block mb-2">Context</span>
-                      <p className="text-sm text-gray-700 line-clamp-2 italic">
-                        "{softFilters.companyBrief}"
-                      </p>
+                      <p className="text-sm text-gray-700 line-clamp-2 italic">"{softFilters.companyBrief}"</p>
                     </div>
                   </div>
                 </div>
@@ -271,28 +263,28 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
         <div className="p-6 border-t border-gray-100 flex justify-between items-center bg-gray-50 flex-shrink-0">
           <div className="flex gap-1">
             {[1, 2, 3].map((i) => (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className={cn(
-                  "w-2 h-2 rounded-full transition-colors",
-                  step >= i ? "bg-indigo-600" : "bg-gray-300"
-                )} 
+                  'w-2 h-2 rounded-full transition-colors',
+                  step >= i ? 'bg-indigo-600' : 'bg-gray-300'
+                )}
               />
             ))}
           </div>
-          
+
           <div className="flex gap-3">
             {step > 1 && (
-              <button 
+              <button
                 onClick={handleBack}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" /> Back
               </button>
             )}
-            
+
             {step < 3 ? (
-              <button 
+              <button
                 onClick={handleNext}
                 disabled={isLoading}
                 className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed min-w-[100px] justify-center"
@@ -308,8 +300,8 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
                 )}
               </button>
             ) : (
-              <button 
-                onClick={onStart}
+              <button
+                onClick={onRunAnalysis}
                 className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-2"
               >
                 Run Analysis <PlayIcon className="w-4 h-4" />
@@ -317,21 +309,21 @@ export function WorkflowSetup({ onClose, onStart }: WorkflowSetupProps) {
             )}
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
 
 function PlayIcon({ className }: { className?: string }) {
   return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className={className}
     >
       <polygon points="5 3 19 12 5 21 5 3" />
