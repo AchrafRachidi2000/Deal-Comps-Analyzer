@@ -1,4 +1,4 @@
-import type { ChatMessage, InsightsRequest, ParsedFilters } from './types';
+import type { ChatMessage, InsightsRequest, ParsedFilters } from './types.js';
 
 export function azureChatUrl(deployment = 'gpt-4o'): string {
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT;

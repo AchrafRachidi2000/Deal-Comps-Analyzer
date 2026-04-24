@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { runAssistantChatStream } from '../../src/server/assistant';
-import type { AssistantChatRequest } from '../../src/server/types';
+import { runAssistantChatStream } from '../../src/server/assistant.js';
+import type { AssistantChatRequest } from '../../src/server/types.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

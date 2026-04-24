@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { generateInsights } from '../src/server/azure';
-import type { InsightsRequest } from '../src/server/types';
+import { generateInsights } from '../src/server/azure.js';
+import type { InsightsRequest } from '../src/server/types.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

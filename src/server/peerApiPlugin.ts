@@ -1,14 +1,14 @@
 import type { Plugin } from 'vite';
 import dotenv from 'dotenv';
-import { fetchYahooPeer } from './yahoo';
-import { discoverPeers, enrichCompany } from './perplexity';
-import { generateInsights, parseQuery } from './azure';
-import { runAssistantChatStream } from './assistant';
+import { fetchYahooPeer } from './yahoo.js';
+import { discoverPeers, enrichCompany } from './perplexity.js';
+import { generateInsights, parseQuery } from './azure.js';
+import { runAssistantChatStream } from './assistant.js';
 import type {
   AssistantChatRequest,
   CustomConstraint,
   InsightsRequest,
-} from './types';
+} from './types.js';
 
 dotenv.config();
 

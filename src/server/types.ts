@@ -1,4 +1,4 @@
-import type { Peer } from '../publicComps/data/mockData';
+import type { Peer } from '../publicComps/data/mockData.js';
 
 export interface DiscoveredPeer {
   ticker: string;

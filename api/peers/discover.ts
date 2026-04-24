@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { discoverPeers } from '../../src/server/perplexity';
-import type { CustomConstraint } from '../../src/server/types';
+import { discoverPeers } from '../../src/server/perplexity.js';
+import type { CustomConstraint } from '../../src/server/types.js';
 
 function asString(v: unknown): string | undefined {
   if (typeof v === 'string') return v;

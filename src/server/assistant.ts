@@ -5,11 +5,11 @@ import type {
   CustomConstraint,
   Emit,
   ParsedFilters,
-} from './types';
-import { buildPeer } from '../publicComps/lib/peerBuilder';
-import { fetchYahooPeer } from './yahoo';
-import { discoverPeers, enrichCompany } from './perplexity';
-import { azureChatWithTools, generateInsights, parseQuery } from './azure';
+} from './types.js';
+import { buildPeer } from '../publicComps/lib/peerBuilder.js';
+import { fetchYahooPeer } from './yahoo.js';
+import { discoverPeers, enrichCompany } from './perplexity.js';
+import { azureChatWithTools, generateInsights, parseQuery } from './azure.js';
 
 function buildAssistantSystemPrompt(state: AssistantState): string {
   const filterLines: string[] = [];

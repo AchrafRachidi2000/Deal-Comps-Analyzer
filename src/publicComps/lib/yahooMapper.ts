@@ -1,5 +1,5 @@
-import type { Peer } from '../data/mockData';
-import { COUNTRY_TO_CODE } from './yahooSymbols';
+import type { Peer } from '../data/mockData.js';
+import { COUNTRY_TO_CODE } from './yahooSymbols.js';
 
 export type RealPeerFields = Partial<
   Pick<

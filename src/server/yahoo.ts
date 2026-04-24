@@ -1,6 +1,6 @@
 import YahooFinance from 'yahoo-finance2';
-import { mapYahooQuoteSummary, RealPeerFields } from '../publicComps/lib/yahooMapper';
-import { toYahooSymbol } from '../publicComps/lib/yahooSymbols';
+import { mapYahooQuoteSummary, RealPeerFields } from '../publicComps/lib/yahooMapper.js';
+import { toYahooSymbol } from '../publicComps/lib/yahooSymbols.js';
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const yahooCache = new Map<string, { at: number; data: RealPeerFields }>();

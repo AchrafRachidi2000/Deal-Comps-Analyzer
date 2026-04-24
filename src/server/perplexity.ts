@@ -1,4 +1,4 @@
-import type { DiscoveredPeer, CustomConstraint, CompanyEnrichment } from './types';
+import type { DiscoveredPeer, CustomConstraint, CompanyEnrichment } from './types.js';
 
 const DISCOVERY_PROMPT = (
   company: string,

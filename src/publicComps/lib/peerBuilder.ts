@@ -1,5 +1,5 @@
-import type { Peer } from '../data/mockData';
-import type { RealPeerFields } from './yahooMapper';
+import type { Peer } from '../data/mockData.js';
+import type { RealPeerFields } from './yahooMapper.js';
 
 export interface DiscoveredPeerInput {
   ticker: string;
