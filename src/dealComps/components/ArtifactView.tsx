@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Calendar, Hash } from 'lucide-react';
-import { Transaction } from '@/data/mockData';
+import { Transaction } from '@/dealComps/data/mockData';
 import { cn } from '@/lib/utils';
 
 export interface Artifact {

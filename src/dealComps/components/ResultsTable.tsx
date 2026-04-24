@@ -13,7 +13,7 @@ import {
   ArrowDown,
   ArrowUpDown,
 } from 'lucide-react';
-import { Transaction } from '@/data/mockData';
+import { Transaction } from '@/dealComps/data/mockData';
 import { cn } from '@/lib/utils';
 
 type SortKey =

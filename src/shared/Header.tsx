@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { ChevronRight, Save, Plus, FileText, ChevronDown } from 'lucide-react';
-import { Artifact } from './ArtifactView';
 import { cn } from '@/lib/utils';
+
+export interface ArtifactTab {
+  id: string;
+  name: string;
+  subtitle: string;
+}
 
 interface HeaderProps {
   title: string;
   breadcrumbs: string[];
-  artifacts?: Artifact[];
+  artifacts?: ArtifactTab[];
   activeView?: 'dashboard' | 'artifact';
   showTabs?: boolean;
   onViewDashboard?: () => void;
@@ -30,7 +35,6 @@ export function Header({ title, breadcrumbs, artifacts = [], activeView, showTab
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Tab Switcher - only on dashboard mode */}
         {showTabs && (
           <>
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
@@ -78,7 +82,7 @@ export function Header({ title, breadcrumbs, artifacts = [], activeView, showTab
                             <FileText className="w-4 h-4 text-indigo-500 flex-shrink-0 mt-0.5" />
                             <div>
                               <div className="text-sm font-medium text-gray-900 truncate">{artifact.name}</div>
-                              <div className="text-xs text-gray-500">{artifact.date} &middot; {artifact.transactions.length} txns</div>
+                              <div className="text-xs text-gray-500">{artifact.subtitle}</div>
                             </div>
                           </button>
                         ))}

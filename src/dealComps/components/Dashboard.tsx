@@ -7,7 +7,7 @@ import {
   Bookmark
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { STATISTICS, MOCK_TRANSACTIONS, Transaction } from '@/data/mockData';
+import { STATISTICS, MOCK_TRANSACTIONS, Transaction } from '@/dealComps/data/mockData';
 import { cn } from '@/lib/utils';
 import { ResultsTable } from './ResultsTable';
 import { DealImplications } from './DealImplications';

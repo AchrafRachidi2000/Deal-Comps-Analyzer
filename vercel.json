@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "functions": {
+    "api/assistant/chat.ts": { "maxDuration": 60 },
+    "api/peers/discover.ts": { "maxDuration": 60 },
+    "api/company/enrich.ts": { "maxDuration": 30 },
+    "api/query/parse-filters.ts": { "maxDuration": 30 },
+    "api/insights.ts": { "maxDuration": 30 },
+    "api/peer/[ticker].ts": { "maxDuration": 15 }
+  }
+}

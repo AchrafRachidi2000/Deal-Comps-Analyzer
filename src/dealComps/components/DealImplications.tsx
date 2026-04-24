@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle2, AlertTriangle, ClipboardList } from 'lucide-react';
-import { DEAL_OVERVIEW, DEAL_IMPLICATIONS } from '@/data/mockData';
+import { DEAL_OVERVIEW, DEAL_IMPLICATIONS } from '@/dealComps/data/mockData';
 import { cn } from '@/lib/utils';
 
 interface DealImplicationsProps {

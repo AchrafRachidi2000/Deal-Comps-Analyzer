@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Info, FileText } from 'lucide-react';
-import { DEAL_IMPLICATIONS } from '@/data/mockData';
+import { DEAL_IMPLICATIONS } from '@/dealComps/data/mockData';
 
 interface ClaimsEvidenceProps {
   isOpen: boolean;
