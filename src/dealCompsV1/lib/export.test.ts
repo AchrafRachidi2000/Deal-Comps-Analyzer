@@ -9,7 +9,7 @@ function tx(p: Partial<CompTransaction>): CompTransaction {
     region: 'North America', location: 'US', countryCode: 'US', announcementDate: '2025-11-15',
     buyer: 'B', buyerType: 'Strategic', employees: 100, dealSize: 450, currency: 'USD',
     revenue: 85, ebitda: 32, ebit: 26, enterpriseValue: 450,
-    evRevenueMultiple: 5.3, evEbitdaMultiple: 14.1, evEbitMultiple: 17.3, status: 'Included', ...p,
+    evRevenueMultiple: 5.3, evEbitdaMultiple: 14.1, evEbitMultiple: 17.3, similarityScore: 80, status: 'Included', ...p,
   };
 }
 

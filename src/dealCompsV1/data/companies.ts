@@ -5,9 +5,16 @@ export { SECTORS, REGIONS, BUYER_TYPES } from './types';
 
 /* ── Multiples derived from raw financials so they stay internally consistent ── */
 
-type RawTx = Omit<CompTransaction, 'evRevenueMultiple' | 'evEbitdaMultiple' | 'evEbitMultiple'>;
+type RawTx = Omit<CompTransaction, 'evRevenueMultiple' | 'evEbitdaMultiple' | 'evEbitMultiple' | 'similarityScore'>;
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
+
+// Deterministic, varied similarity score (62–98%) derived from the row id.
+function similarityFromId(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return 62 + (h % 37);
+}
 
 function withMultiples(rows: RawTx[]): CompTransaction[] {
   return rows.map((r) => ({
@@ -15,6 +22,7 @@ function withMultiples(rows: RawTx[]): CompTransaction[] {
     evRevenueMultiple: r.enterpriseValue !== null && r.revenue ? round1(r.enterpriseValue / r.revenue) : null,
     evEbitdaMultiple: r.enterpriseValue !== null && r.ebitda && r.ebitda > 0 ? round1(r.enterpriseValue / r.ebitda) : null,
     evEbitMultiple: r.enterpriseValue !== null && r.ebit && r.ebit > 0 ? round1(r.enterpriseValue / r.ebit) : null,
+    similarityScore: similarityFromId(r.id),
   }));
 }
 
@@ -115,10 +123,10 @@ const CANVA_TX = withMultiples([
   mk('cv-16', 'Automattic', 'WordPress.com and web publishing.', 'Software', 'North America', 'United States', 'US', '2025-07-15', 'Insight Partners', 'Financial', 1900, 'USD', 600, 120, 3000),
 ]);
 
-/* ── Target 4: SpaceX (Hardware / Deep Tech) ── */
+/* ── Target 4: Anduril (Hardware / Deep Tech) ── */
 
-const SPACEX_TX = withMultiples([
-  mk('sx-1', 'Anduril', 'Autonomous defense systems.', 'Hardware', 'North America', 'United States', 'US', '2025-05-06', 'Founders Fund', 'Financial', 3000, 'USD', 1000, 320, 8000),
+const ANDURIL_TX = withMultiples([
+  mk('sx-1', 'Vannevar Labs', 'AI for national-security intelligence.', 'Hardware', 'North America', 'United States', 'US', '2025-05-06', 'Founders Fund', 'Financial', 600, 'USD', 120, null, 2400),
   mk('sx-2', 'Blue Origin', 'Reusable rockets and space systems.', 'Hardware', 'North America', 'United States', 'US', '2025-02-14', 'Bezos Expeditions', 'Financial', 11000, 'USD', 500, null, 6000),
   mk('sx-3', 'Relativity Space', '3D-printed launch vehicles.', 'Hardware', 'North America', 'United States', 'US', '2025-06-25', 'Fidelity', 'Financial', 1000, 'USD', 80, null, 1600),
   mk('sx-4', 'Firefly Aerospace', 'Small-launch and lunar landers.', 'Hardware', 'North America', 'United States', 'US', '2024-12-09', 'AE Industrial', 'Financial', 700, 'USD', 100, null, 2000),
@@ -136,10 +144,10 @@ const SPACEX_TX = withMultiples([
   mk('sx-16', 'Boom Supersonic', 'Supersonic passenger aircraft.', 'Hardware', 'North America', 'United States', 'US', '2025-06-05', 'NEA', 'Financial', 700, 'USD', 50, null, 1000),
 ]);
 
-/* ── Target 5: IKEA (Consumer) ── */
+/* ── Target 5: Mars (Consumer) ── */
 
-const IKEA_TX = withMultiples([
-  mk('ik-1', 'Mars', 'Confectionery, food, and petcare.', 'Consumer', 'North America', 'United States', 'US', '2025-03-10', 'Berkshire Hathaway', 'Strategic', 140000, 'USD', 3000, 600, 6000),
+const MARS_TX = withMultiples([
+  mk('ik-1', 'Haribo', 'Gummy candy and confectionery.', 'Consumer', 'Europe', 'Germany', 'DE', '2025-03-10', 'Ferrero', 'Strategic', 7000, 'EUR', 800, 160, 2400),
   mk('ik-2', 'LEGO', 'Construction toys and play.', 'Consumer', 'Europe', 'Denmark', 'DK', '2024-11-26', 'Kirkbi', 'Financial', 28000, 'EUR', 1000, 300, 4000),
   mk('ik-3', 'Rolex', 'Luxury watchmaking.', 'Consumer', 'Europe', 'Switzerland', 'CH', '2025-02-19', 'Wilsdorf Foundation', 'Strategic', 14000, 'CHF', 1100, 330, 5500),
   mk('ik-4', 'Dyson', 'Premium home appliances.', 'Consumer', 'Europe', 'United Kingdom', 'GB', '2025-05-13', 'Weybourne', 'Strategic', 14000, 'GBP', 800, 160, 2400),
@@ -218,21 +226,21 @@ export const PRESET_COMPANIES: PresetCompany[] = [
     transactions: CANVA_TX,
   },
   {
-    id: 'spacex',
-    name: 'SpaceX',
-    description: 'Reusable rockets, Starlink, and space transport.',
+    id: 'anduril',
+    name: 'Anduril',
+    description: 'Autonomous defense systems and software (privately held).',
     presetFilters: filters({
       transactionAge: { min: null, max: 6 },
       buyerType: ['Strategic', 'Financial'],
       geography: NA_EUROPE,
       evRevenue: { min: 2, max: 30 },
     }),
-    transactions: SPACEX_TX,
+    transactions: ANDURIL_TX,
   },
   {
-    id: 'ikea',
-    name: 'IKEA',
-    description: 'Global home-furnishing retailer.',
+    id: 'mars',
+    name: 'Mars',
+    description: 'Confectionery, food, and petcare — family-owned and private.',
     presetFilters: filters({
       transactionAge: { min: null, max: 6 },
       buyerType: ['Strategic', 'Financial'],
@@ -241,7 +249,7 @@ export const PRESET_COMPANIES: PresetCompany[] = [
       evRevenue: { min: 1, max: 10 },
       evEbitda: { min: 8, max: 30 },
     }),
-    transactions: IKEA_TX,
+    transactions: MARS_TX,
   },
   {
     id: 'bloomberg',

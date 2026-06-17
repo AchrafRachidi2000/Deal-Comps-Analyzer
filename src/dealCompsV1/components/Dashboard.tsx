@@ -6,7 +6,7 @@ import { filterTransactions } from '@/dealCompsV1/lib/filtering';
 import { computeAllStats } from '@/dealCompsV1/lib/stats';
 import { COLUMN_DEFS } from '@/dealCompsV1/lib/columns';
 import { buildCsv, buildWorkbook, downloadCsv, downloadWorkbook } from '@/dealCompsV1/lib/export';
-import { StatsGrid } from './StatsGrid';
+import { SummaryStatsTable } from './SummaryStatsTable';
 import { FilterBar } from './FilterBar';
 import { ColumnPicker } from './ColumnPicker';
 import { ResultsTable } from './ResultsTable';
@@ -66,7 +66,7 @@ export function Dashboard({
         </div>
 
         {/* Stats */}
-        <StatsGrid stats={stats} />
+        <SummaryStatsTable stats={stats} scope={filteredRows.length} />
 
         {/* Filters */}
         <FilterBar filters={filters} onChange={onFiltersChange} />

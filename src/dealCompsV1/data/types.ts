@@ -22,6 +22,7 @@ export interface CompTransaction {
   evRevenueMultiple: number | null;
   evEbitdaMultiple: number | null;
   evEbitMultiple: number | null;
+  similarityScore: number; // 0–100, similarity to the target company
   status: Status;
 }
 

@@ -8,7 +8,7 @@ function tx(partial: Partial<CompTransaction>): CompTransaction {
     region: 'North America', location: 'US', countryCode: 'US', announcementDate: '2025-01-01',
     buyer: 'B', buyerType: 'Strategic', employees: null, dealSize: null, currency: 'USD',
     revenue: null, ebitda: null, ebit: null, enterpriseValue: null,
-    evRevenueMultiple: null, evEbitdaMultiple: null, evEbitMultiple: null, status: 'Included',
+    evRevenueMultiple: null, evEbitdaMultiple: null, evEbitMultiple: null, similarityScore: 80, status: 'Included',
     ...partial,
   };
 }
@@ -20,14 +20,17 @@ describe('median', () => {
 });
 
 describe('computeStat', () => {
-  it('computes min/median/max/n over valid values', () => {
+  it('computes min/quartiles/median/mean/max/n over valid values', () => {
     const rows = [
       tx({ evEbitdaMultiple: 10 }),
       tx({ evEbitdaMultiple: 14 }),
       tx({ evEbitdaMultiple: 12 }),
     ];
     const s = computeStat(rows, 'evEbitdaMultiple', 'EV / EBITDA');
-    expect(s).toEqual({ key: 'evEbitdaMultiple', label: 'EV / EBITDA', min: 10, median: 12, max: 14, n: 3 });
+    expect(s).toEqual({
+      key: 'evEbitdaMultiple', label: 'EV / EBITDA',
+      min: 10, p25: 11, median: 12, mean: 12, p75: 13, max: 14, n: 3, total: 3,
+    });
   });
 
   it('excludes null, zero, negative, and non-finite values', () => {
@@ -45,7 +48,10 @@ describe('computeStat', () => {
 
   it('returns nulls and n=0 for empty', () => {
     const s = computeStat([], 'evEbitdaMultiple', 'EV / EBITDA');
-    expect(s).toEqual({ key: 'evEbitdaMultiple', label: 'EV / EBITDA', min: null, median: null, max: null, n: 0 });
+    expect(s).toEqual({
+      key: 'evEbitdaMultiple', label: 'EV / EBITDA',
+      min: null, p25: null, median: null, mean: null, p75: null, max: null, n: 0, total: 0,
+    });
   });
 });
 

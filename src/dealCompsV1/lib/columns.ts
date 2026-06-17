@@ -17,6 +17,8 @@ export interface ColumnDef {
 export const COLUMN_DEFS: ColumnDef[] = [
   { key: 'target', label: 'Target', group: 'Company', align: 'left', alwaysOn: true, defaultVisible: true,
     value: (t) => t.targetCompany, display: (t) => t.targetCompany },
+  { key: 'similarity', label: 'Similarity', group: 'Company', align: 'left', defaultVisible: true,
+    value: (t) => t.similarityScore, display: (t) => `${t.similarityScore}%` },
   { key: 'sector', label: 'Sector', group: 'Company', align: 'left', defaultVisible: true,
     value: (t) => t.sector, display: (t) => t.sector },
   { key: 'geography', label: 'Geography', group: 'Company', align: 'left', defaultVisible: true,

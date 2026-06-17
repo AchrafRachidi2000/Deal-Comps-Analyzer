@@ -172,6 +172,26 @@ export function ResultsTable({
                           />
                           <span>{tx.location}</span>
                         </div>
+                      ) : c.key === 'similarity' ? (
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={cn(
+                              'text-sm font-semibold tabular-nums',
+                              tx.similarityScore >= 85 ? 'text-emerald-600' : tx.similarityScore >= 72 ? 'text-green-600' : 'text-amber-600'
+                            )}
+                          >
+                            {tx.similarityScore}%
+                          </span>
+                          <div className="w-12 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                            <div
+                              className={cn(
+                                'h-full rounded-full',
+                                tx.similarityScore >= 85 ? 'bg-emerald-500' : tx.similarityScore >= 72 ? 'bg-green-500' : 'bg-amber-500'
+                              )}
+                              style={{ width: `${tx.similarityScore}%` }}
+                            />
+                          </div>
+                        </div>
                       ) : c.key === 'sector' ? (
                         <span
                           className={cn(

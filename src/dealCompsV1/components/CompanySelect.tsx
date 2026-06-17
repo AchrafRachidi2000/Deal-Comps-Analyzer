@@ -81,6 +81,9 @@ export function CompanySelect({
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
                   {c.name}
+                  <span className="text-[10px] font-semibold uppercase tracking-wide bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
+                    Private
+                  </span>
                   {value?.id === c.id && <Check className="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" />}
                 </div>
                 <div className="text-xs text-gray-500 mt-0.5 line-clamp-2">{c.description}</div>
