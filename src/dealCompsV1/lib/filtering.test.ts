@@ -53,9 +53,9 @@ describe('inDateRange', () => {
 
 describe('filterTransactions', () => {
   const rows = [
-    tx({ id: '1', sector: 'Medical Devices', buyerType: 'Strategic', region: 'North America', evEbitdaMultiple: 10 }),
-    tx({ id: '2', sector: 'Diagnostics', buyerType: 'Financial', region: 'Europe', evEbitdaMultiple: 18 }),
-    tx({ id: '3', sector: 'Wearables', buyerType: 'Financial', region: 'Asia Pacific', evEbitdaMultiple: null }),
+    tx({ id: '1', sector: 'Medical Devices', buyerType: 'Strategic', region: 'North America', location: 'United States', evEbitdaMultiple: 10 }),
+    tx({ id: '2', sector: 'Diagnostics', buyerType: 'Financial', region: 'Europe', location: 'Germany', evEbitdaMultiple: 18 }),
+    tx({ id: '3', sector: 'Wearables', buyerType: 'Financial', region: 'Asia Pacific', location: 'Japan', evEbitdaMultiple: null }),
   ];
   it('empty filters returns all', () => {
     expect(filterTransactions(rows, EMPTY_FILTERS).map((r) => r.id)).toEqual(['1', '2', '3']);
@@ -68,8 +68,12 @@ describe('filterTransactions', () => {
     const f: DealCompFilters = { ...EMPTY_FILTERS, evEbitda: { min: 5, max: 15 } };
     expect(filterTransactions(rows, f).map((r) => r.id)).toEqual(['1']);
   });
+  it('geography filters by country', () => {
+    const f: DealCompFilters = { ...EMPTY_FILTERS, geography: ['Germany', 'Japan'] };
+    expect(filterTransactions(rows, f).map((r) => r.id)).toEqual(['2', '3']);
+  });
   it('combined filters AND together', () => {
-    const f: DealCompFilters = { ...EMPTY_FILTERS, buyerType: ['Financial'], geography: ['Europe'] };
+    const f: DealCompFilters = { ...EMPTY_FILTERS, buyerType: ['Financial'], geography: ['Germany'] };
     expect(filterTransactions(rows, f).map((r) => r.id)).toEqual(['2']);
   });
 });

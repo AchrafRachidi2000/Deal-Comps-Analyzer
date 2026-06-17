@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import type { PresetCompany, DealCompFilters, RangeFilter } from '@/dealCompsV1/data/types';
 import { FILTER_DEFS } from '@/dealCompsV1/data/filterDefs';
 import { extentOf } from '@/dealCompsV1/lib/filtering';
-import { MultiSelect, RangeControl, DateRangeControl } from './FilterControls';
+import { SingleSelect, MultiSelect, GeographyControl, RangeControl, DateRangeControl } from './FilterControls';
 import { CompanySelect } from './CompanySelect';
 
 interface LandingPageProps {
@@ -89,11 +89,25 @@ export function LandingPage({ companies, onRun }: LandingPageProps) {
                         {def.icon}
                         {def.label}
                       </div>
+                      {def.kind === 'single' && (
+                        <SingleSelect
+                          options={def.options!}
+                          value={(filters[def.key] as string[])[0] ?? null}
+                          onChange={(v) => update(def.key, (v ? [v] : []) as DealCompFilters[typeof def.key])}
+                        />
+                      )}
                       {def.kind === 'multi' && (
                         <MultiSelect
                           options={def.options!}
                           selected={filters[def.key] as string[]}
                           onChange={(next) => update(def.key, next as DealCompFilters[typeof def.key])}
+                        />
+                      )}
+                      {def.kind === 'geo' && (
+                        <GeographyControl
+                          value={filters.geography}
+                          onChange={(next) => update('geography', next)}
+                          transactions={company.transactions}
                         />
                       )}
                       {def.kind === 'range' && (

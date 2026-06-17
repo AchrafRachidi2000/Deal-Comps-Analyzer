@@ -5,11 +5,11 @@ import { EMPTY_FILTERS } from '@/dealCompsV1/data/types';
 import { FILTER_DEFS, FilterDef } from '@/dealCompsV1/data/filterDefs';
 import { extentOf } from '@/dealCompsV1/lib/filtering';
 import { cn } from '@/lib/utils';
-import { MultiSelect, RangeControl, DateRangeControl } from './FilterControls';
+import { SingleSelect, MultiSelect, GeographyControl, RangeControl, DateRangeControl } from './FilterControls';
 
 function chipValue(def: FilterDef, filters: DealCompFilters): string {
   const val = filters[def.key];
-  if (def.kind === 'multi') {
+  if (def.kind === 'multi' || def.kind === 'single' || def.kind === 'geo') {
     const arr = val as string[];
     if (arr.length === 0) return 'Any';
     if (arr.length <= 2) return arr.join(', ');
@@ -85,11 +85,25 @@ export function FilterBar({
           >
             {active === def.key && (
               <Popover onClose={() => setActive(null)}>
+                {def.kind === 'single' && (
+                  <SingleSelect
+                    options={def.options!}
+                    value={(filters[def.key] as string[])[0] ?? null}
+                    onChange={(v) => set(def.key, (v ? [v] : []) as DealCompFilters[typeof def.key])}
+                  />
+                )}
                 {def.kind === 'multi' && (
                   <MultiSelect
                     options={def.options!}
                     selected={filters[def.key] as string[]}
                     onChange={(next) => set(def.key, next as DealCompFilters[typeof def.key])}
+                  />
+                )}
+                {def.kind === 'geo' && (
+                  <GeographyControl
+                    value={filters.geography}
+                    onChange={(next) => set('geography', next)}
+                    transactions={transactions}
                   />
                 )}
                 {def.kind === 'range' && (

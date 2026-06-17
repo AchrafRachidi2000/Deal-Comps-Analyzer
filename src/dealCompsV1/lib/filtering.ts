@@ -29,7 +29,7 @@ export function filterTransactions(rows: CompTransaction[], f: DealCompFilters):
     (t) =>
       matchesMulti(t.sector, f.sector) &&
       matchesMulti(t.buyerType, f.buyerType) &&
-      matchesMulti(t.region, f.geography) &&
+      matchesMulti(t.location, f.geography) &&
       inRange(t.employees, f.employees) &&
       inRange(t.revenue, f.revenue) &&
       inRange(t.ebitda, f.ebitda) &&

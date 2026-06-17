@@ -62,9 +62,7 @@ export const PRESET_COMPANIES: PresetCompany[] = [
     name: 'NovaPulse Medical',
     description: 'Non-invasive respiratory monitoring hardware & software for ICU and home-care.',
     presetFilters: filters({
-      sector: ['Medical Devices', 'Diagnostics', 'Health IT / SaaS'],
       buyerType: ['Strategic', 'Financial'],
-      geography: ['North America', 'Europe'],
       evEbitda: { min: 8, max: 20 },
     }),
     transactions: NOVAPULSE_TX,
@@ -74,9 +72,7 @@ export const PRESET_COMPANIES: PresetCompany[] = [
     name: 'VitalEdge Diagnostics',
     description: 'In-vitro diagnostics, lab automation, and clinical decision software.',
     presetFilters: filters({
-      sector: ['Diagnostics', 'Health IT / SaaS'],
       buyerType: ['Strategic', 'Financial'],
-      geography: ['North America', 'Europe'],
       revenue: { min: 30, max: 300 },
       evEbitda: { min: 8, max: 25 },
     }),
@@ -87,9 +83,7 @@ export const PRESET_COMPANIES: PresetCompany[] = [
     name: 'Helios Surgical',
     description: 'Surgical devices, implants, and single-use procedure supplies.',
     presetFilters: filters({
-      sector: ['Medical Devices', 'Medical Supplies'],
       buyerType: ['Strategic', 'Financial'],
-      geography: ['North America', 'Europe'],
       evEbitda: { min: 8, max: 18 },
     }),
     transactions: HELIOS_TX,
