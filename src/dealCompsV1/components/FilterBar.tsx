@@ -19,12 +19,14 @@ function chipValue(def: FilterDef, filters: DealCompFilters): string {
     const r = val as RangeFilter;
     const u = def.unit ?? '';
     const s = def.suffix ?? '';
+    if (r.min !== null && r.max !== null && r.min > r.max) return 'Any';
     if (r.min !== null && r.max !== null) return `${u}${r.min}${s} – ${u}${r.max}${s}`;
     if (r.min !== null) return `≥ ${u}${r.min}${s}`;
     if (r.max !== null) return `≤ ${u}${r.max}${s}`;
     return 'Any';
   }
   const d = val as DateRange;
+  if (d.from && d.to && d.from > d.to) return 'Any';
   if (d.from && d.to) return `${d.from} → ${d.to}`;
   if (d.from) return `From ${d.from}`;
   if (d.to) return `Until ${d.to}`;

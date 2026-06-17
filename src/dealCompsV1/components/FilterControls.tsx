@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { RangeFilter, DateRange } from '@/dealCompsV1/data/types';
 
 /* ── Multi-select (checkbox list) ── */
@@ -69,7 +69,10 @@ export function RangeControl({
             value={value.min ?? ''}
             step={step}
             placeholder="Min"
-            onChange={(e) => onChange({ ...value, min: parse(e.target.value) })}
+            onChange={(e) => {
+              const n = parse(e.target.value);
+              onChange({ ...value, min: n !== null && value.max !== null && n > value.max ? value.max : n });
+            }}
             className={`w-full ${unit ? 'pl-5' : 'pl-2.5'} pr-2.5 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400`}
           />
         </div>
@@ -81,7 +84,10 @@ export function RangeControl({
             value={value.max ?? ''}
             step={step}
             placeholder="Max"
-            onChange={(e) => onChange({ ...value, max: parse(e.target.value) })}
+            onChange={(e) => {
+              const n = parse(e.target.value);
+              onChange({ ...value, max: n !== null && value.min !== null && n < value.min ? value.min : n });
+            }}
             className={`w-full ${unit ? 'pl-5' : 'pl-2.5'} pr-2.5 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400`}
           />
         </div>
@@ -138,8 +144,13 @@ export function DateRangeControl({
   value: DateRange;
   onChange: (d: DateRange) => void;
 }) {
-  const today = new Date();
-  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  const today = useMemo(() => new Date(), []);
+  const iso = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
   const preset = (years: number) => {
     const from = new Date(today);
     from.setFullYear(from.getFullYear() - years);
@@ -154,7 +165,11 @@ export function DateRangeControl({
           <input
             type="date"
             value={value.from ?? ''}
-            onChange={(e) => onChange({ ...value, from: e.target.value || null })}
+            max={value.to ?? undefined}
+            onChange={(e) => {
+              const from = e.target.value || null;
+              onChange({ ...value, from: from && value.to && from > value.to ? value.to : from });
+            }}
             className="w-full px-2.5 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"
           />
         </div>
@@ -163,7 +178,11 @@ export function DateRangeControl({
           <input
             type="date"
             value={value.to ?? ''}
-            onChange={(e) => onChange({ ...value, to: e.target.value || null })}
+            min={value.from ?? undefined}
+            onChange={(e) => {
+              const to = e.target.value || null;
+              onChange({ ...value, to: to && value.from && to < value.from ? value.from : to });
+            }}
             className="w-full px-2.5 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"
           />
         </div>
