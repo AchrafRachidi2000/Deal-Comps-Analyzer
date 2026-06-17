@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { inRange, inDateRange, matchesMulti, filterTransactions, extentOf } from './filtering';
+import { inRange, transactionAgeYears, matchesMulti, filterTransactions, extentOf } from './filtering';
 import type { CompTransaction, DealCompFilters } from '@/dealCompsV1/data/types';
 import { EMPTY_FILTERS } from '@/dealCompsV1/data/types';
 
@@ -42,12 +42,15 @@ describe('matchesMulti', () => {
   });
 });
 
-describe('inDateRange', () => {
-  it('empty → true', () => { expect(inDateRange('2025-01-01', { from: null, to: null })).toBe(true); });
-  it('within', () => {
-    expect(inDateRange('2025-06-01', { from: '2025-01-01', to: '2025-12-31' })).toBe(true);
-    expect(inDateRange('2024-06-01', { from: '2025-01-01', to: null })).toBe(false);
-    expect(inDateRange('2026-06-01', { from: null, to: '2025-12-31' })).toBe(false);
+describe('transactionAgeYears', () => {
+  const now = new Date('2026-06-17T00:00:00');
+  it('floors to whole years', () => {
+    expect(transactionAgeYears('2026-01-01', now)).toBe(0);
+    expect(transactionAgeYears('2025-06-17', now)).toBe(1);
+    expect(transactionAgeYears('2021-01-01', now)).toBe(5);
+  });
+  it('future dates clamp to 0', () => {
+    expect(transactionAgeYears('2027-01-01', now)).toBe(0);
   });
 });
 
@@ -75,6 +78,15 @@ describe('filterTransactions', () => {
   it('combined filters AND together', () => {
     const f: DealCompFilters = { ...EMPTY_FILTERS, buyerType: ['Financial'], geography: ['Germany'] };
     expect(filterTransactions(rows, f).map((r) => r.id)).toEqual(['2']);
+  });
+  it('filters by transaction age', () => {
+    const now = new Date('2026-06-17T00:00:00');
+    const aged = [
+      tx({ id: 'a', announcementDate: '2026-01-01' }), // age 0
+      tx({ id: 'b', announcementDate: '2023-01-01' }), // age 3
+    ];
+    const f: DealCompFilters = { ...EMPTY_FILTERS, transactionAge: { min: null, max: 1 } };
+    expect(filterTransactions(aged, f, now).map((r) => r.id)).toEqual(['a']);
   });
 });
 

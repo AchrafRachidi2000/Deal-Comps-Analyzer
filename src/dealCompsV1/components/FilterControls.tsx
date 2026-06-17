@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Check, ChevronRight } from 'lucide-react';
-import type { RangeFilter, DateRange } from '@/dealCompsV1/data/types';
+import type { RangeFilter } from '@/dealCompsV1/data/types';
 import { REGION_COUNTRIES } from '@/dealCompsV1/data/geography';
 import { cn } from '@/lib/utils';
 
@@ -266,71 +266,4 @@ export function RangeControl({
 
 function clamp(n: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(n, hi));
-}
-
-/* ── Date range (from/to, clamped) ── */
-
-export function DateRangeControl({
-  value,
-  onChange,
-}: {
-  value: DateRange;
-  onChange: (d: DateRange) => void;
-}) {
-  const today = useMemo(() => new Date(), []);
-  const iso = (d: Date) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
-  const preset = (years: number) => {
-    const from = new Date(today);
-    from.setFullYear(from.getFullYear() - years);
-    onChange({ from: iso(from), to: iso(today) });
-  };
-
-  return (
-    <div className="p-3 space-y-3 min-w-[240px]">
-      <div className="space-y-2">
-        <div>
-          <label className="text-xs text-gray-500 mb-1 block">From</label>
-          <input
-            type="date"
-            value={value.from ?? ''}
-            max={value.to ?? undefined}
-            onChange={(e) => {
-              const from = e.target.value || null;
-              onChange({ ...value, from: from && value.to && from > value.to ? value.to : from });
-            }}
-            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-gray-500 mb-1 block">To</label>
-          <input
-            type="date"
-            value={value.to ?? ''}
-            min={value.from ?? undefined}
-            onChange={(e) => {
-              const to = e.target.value || null;
-              onChange({ ...value, to: to && value.from && to < value.from ? value.from : to });
-            }}
-            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"
-          />
-        </div>
-      </div>
-      <div className="flex gap-1.5">
-        {[1, 3, 5].map((y) => (
-          <button
-            key={y}
-            onClick={() => preset(y)}
-            className="px-2 py-1 text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
-          >
-            Last {y}y
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 }

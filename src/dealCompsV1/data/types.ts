@@ -30,12 +30,8 @@ export interface RangeFilter {
   max: number | null;
 }
 
-export interface DateRange {
-  from: string | null;
-  to: string | null;
-}
-
 export interface DealCompFilters {
+  transactionAge: RangeFilter; // years since announcement
   sector: string[];
   buyerType: BuyerType[];
   geography: string[];
@@ -44,7 +40,6 @@ export interface DealCompFilters {
   ebitda: RangeFilter;
   evEbitda: RangeFilter;
   evRevenue: RangeFilter;
-  announcementDate: DateRange;
 }
 
 export interface PresetCompany {
@@ -69,6 +64,7 @@ export const REGIONS = ['North America', 'Europe', 'Asia Pacific', 'Latin Americ
 export const BUYER_TYPES: BuyerType[] = ['Strategic', 'Financial'];
 
 export const EMPTY_FILTERS: DealCompFilters = {
+  transactionAge: { min: null, max: null },
   sector: [],
   buyerType: [],
   geography: [],
@@ -77,5 +73,4 @@ export const EMPTY_FILTERS: DealCompFilters = {
   ebitda: { min: null, max: null },
   evEbitda: { min: null, max: null },
   evRevenue: { min: null, max: null },
-  announcementDate: { from: null, to: null },
 };

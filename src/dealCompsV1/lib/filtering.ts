@@ -1,4 +1,14 @@
-import type { CompTransaction, DealCompFilters, RangeFilter, DateRange } from '@/dealCompsV1/data/types';
+import type { CompTransaction, DealCompFilters, RangeFilter } from '@/dealCompsV1/data/types';
+
+export function transactionAgeYears(announcementDate: string, now: Date): number {
+  const d = new Date(announcementDate + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return 0;
+  let age = now.getFullYear() - d.getFullYear();
+  const beforeAnniversary =
+    now.getMonth() < d.getMonth() || (now.getMonth() === d.getMonth() && now.getDate() < d.getDate());
+  if (beforeAnniversary) age -= 1;
+  return age < 0 ? 0 : age;
+}
 
 function hasBound(r: RangeFilter): boolean {
   if (r.min === null && r.max === null) return false;
@@ -18,15 +28,14 @@ export function matchesMulti(value: string, selected: string[]): boolean {
   return selected.length === 0 || selected.includes(value);
 }
 
-export function inDateRange(date: string, r: DateRange): boolean {
-  if (r.from && date < r.from) return false;
-  if (r.to && date > r.to) return false;
-  return true;
-}
-
-export function filterTransactions(rows: CompTransaction[], f: DealCompFilters): CompTransaction[] {
+export function filterTransactions(
+  rows: CompTransaction[],
+  f: DealCompFilters,
+  now: Date = new Date()
+): CompTransaction[] {
   return rows.filter(
     (t) =>
+      inRange(transactionAgeYears(t.announcementDate, now), f.transactionAge) &&
       matchesMulti(t.sector, f.sector) &&
       matchesMulti(t.buyerType, f.buyerType) &&
       matchesMulti(t.location, f.geography) &&
@@ -34,8 +43,7 @@ export function filterTransactions(rows: CompTransaction[], f: DealCompFilters):
       inRange(t.revenue, f.revenue) &&
       inRange(t.ebitda, f.ebitda) &&
       inRange(t.evEbitdaMultiple, f.evEbitda) &&
-      inRange(t.evRevenueMultiple, f.evRevenue) &&
-      inDateRange(t.announcementDate, f.announcementDate)
+      inRange(t.evRevenueMultiple, f.evRevenue)
   );
 }
 

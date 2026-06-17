@@ -1,52 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, SlidersHorizontal } from 'lucide-react';
-import type { DealCompFilters, RangeFilter, DateRange } from '@/dealCompsV1/data/types';
+import type { DealCompFilters } from '@/dealCompsV1/data/types';
 import { EMPTY_FILTERS } from '@/dealCompsV1/data/types';
 import { FILTER_DEFS, FilterDef } from '@/dealCompsV1/data/filterDefs';
 import { cn } from '@/lib/utils';
-import { SingleSelect, MultiSelect, GeographyControl, RangeControl, DateRangeControl } from './FilterControls';
-
-function fmtRangeValue(def: FilterDef, n: number): string {
-  if (def.unit === '$') {
-    if (n >= 1000) {
-      const b = n / 1000;
-      return `$${Number.isInteger(b) ? b : b.toFixed(1)}B`;
-    }
-    return `$${n.toLocaleString('en-US')}M`;
-  }
-  const num = Number.isInteger(n) ? n.toLocaleString('en-US') : n.toFixed(1);
-  return `${num}${def.suffix ?? ''}`;
-}
-
-function chipValue(def: FilterDef, filters: DealCompFilters): string {
-  const val = filters[def.key];
-  if (def.kind === 'multi' || def.kind === 'single' || def.kind === 'geo') {
-    const arr = val as string[];
-    if (arr.length === 0) return 'Any';
-    if (arr.length <= 2) return arr.join(', ');
-    return `${arr.slice(0, 2).join(', ')} +${arr.length - 2}`;
-  }
-  if (def.kind === 'range') {
-    const r = val as RangeFilter;
-    if (r.min !== null && r.max !== null && r.min > r.max) return 'Any';
-    if (r.min !== null && r.max !== null) return `${fmtRangeValue(def, r.min)} – ${fmtRangeValue(def, r.max)}`;
-    if (r.min !== null) return `≥ ${fmtRangeValue(def, r.min)}`;
-    if (r.max !== null) return `≤ ${fmtRangeValue(def, r.max)}`;
-    return 'Any';
-  }
-  const d = val as DateRange;
-  if (d.from && d.to && d.from > d.to) return 'Any';
-  if (d.from && d.to) return `${d.from} → ${d.to}`;
-  if (d.from) return `From ${d.from}`;
-  if (d.to) return `Until ${d.to}`;
-  return 'Any';
-}
-
-function hasValue(def: FilterDef, filters: DealCompFilters): boolean {
-  const val = filters[def.key];
-  if (Array.isArray(val)) return val.length > 0;
-  return Object.values(val as object).some((x) => x !== null && x !== '');
-}
+import { FilterControl, Popover, filterValueLabel, hasFilterValue } from './filterShared';
 
 export function FilterBar({
   filters,
@@ -57,15 +15,12 @@ export function FilterBar({
 }) {
   const [active, setActive] = useState<string | null>(null);
 
-  const set = <K extends keyof DealCompFilters>(key: K, val: DealCompFilters[K]) =>
-    onChange({ ...filters, [key]: val });
-
   const reset = (key: keyof DealCompFilters) => {
     onChange({ ...filters, [key]: EMPTY_FILTERS[key] });
     if (active === key) setActive(null);
   };
 
-  const activeCount = FILTER_DEFS.filter((d) => hasValue(d, filters)).length;
+  const activeCount = FILTER_DEFS.filter((d) => hasFilterValue(d, filters)).length;
 
   return (
     <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
@@ -92,45 +47,15 @@ export function FilterBar({
           <Chip
             key={def.key}
             def={def}
-            label={`${def.shortLabel}: ${chipValue(def, filters)}`}
+            label={`${def.shortLabel}: ${filterValueLabel(def, filters)}`}
             active={active === def.key}
-            hasValue={hasValue(def, filters)}
+            hasValue={hasFilterValue(def, filters)}
             onClick={() => setActive((a) => (a === def.key ? null : def.key))}
-            onRemove={hasValue(def, filters) ? () => reset(def.key) : undefined}
+            onRemove={hasFilterValue(def, filters) ? () => reset(def.key) : undefined}
           >
             {active === def.key && (
               <Popover onClose={() => setActive(null)}>
-                {def.kind === 'single' && (
-                  <SingleSelect
-                    options={def.options!}
-                    value={(filters[def.key] as string[])[0] ?? null}
-                    onChange={(v) => set(def.key, (v ? [v] : []) as DealCompFilters[typeof def.key])}
-                  />
-                )}
-                {def.kind === 'multi' && (
-                  <MultiSelect
-                    options={def.options!}
-                    selected={filters[def.key] as string[]}
-                    onChange={(next) => set(def.key, next as DealCompFilters[typeof def.key])}
-                  />
-                )}
-                {def.kind === 'geo' && (
-                  <GeographyControl value={filters.geography} onChange={(next) => set('geography', next)} />
-                )}
-                {def.kind === 'range' && (
-                  <RangeControl
-                    value={filters[def.key] as RangeFilter}
-                    onChange={(r) => set(def.key, r as DealCompFilters[typeof def.key])}
-                    min={def.min ?? 0}
-                    max={def.max ?? 100}
-                    step={def.step}
-                    unit={def.unit}
-                    suffix={def.suffix}
-                  />
-                )}
-                {def.kind === 'date' && (
-                  <DateRangeControl value={filters.announcementDate} onChange={(d) => set('announcementDate', d)} />
-                )}
+                <FilterControl def={def} filters={filters} onChange={onChange} />
               </Popover>
             )}
           </Chip>
@@ -194,29 +119,6 @@ function Chip({
           </button>
         )}
       </div>
-      {children}
-    </div>
-  );
-}
-
-function Popover({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-    };
-    const id = setTimeout(() => document.addEventListener('mousedown', handler), 0);
-    return () => {
-      clearTimeout(id);
-      document.removeEventListener('mousedown', handler);
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      ref={ref}
-      className="absolute top-full left-0 mt-1.5 z-30 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
-    >
       {children}
     </div>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, Briefcase, Globe, Users, BarChart3, TrendingUp, Calendar } from 'lucide-react';
+import { Building2, Briefcase, Globe, Users, BarChart3, TrendingUp, Clock } from 'lucide-react';
 import type { DealCompFilters } from './types';
 import { SECTORS, BUYER_TYPES } from './types';
 
@@ -21,7 +21,7 @@ export interface FilterDef {
 }
 
 export const FILTER_DEFS: FilterDef[] = [
-  { key: 'announcementDate', label: 'Announcement Date', shortLabel: 'Date', icon: <Calendar className="w-3 h-3" />, kind: 'date' },
+  { key: 'transactionAge', label: 'Transaction Age', shortLabel: 'Age', icon: <Clock className="w-3 h-3" />, kind: 'range', min: 0, max: 30, step: 1, suffix: 'y' },
   { key: 'sector', label: 'Sector', shortLabel: 'Sector', icon: <Building2 className="w-3 h-3" />, kind: 'single', options: SECTORS },
   { key: 'buyerType', label: 'Buyer Type', shortLabel: 'Buyer', icon: <Briefcase className="w-3 h-3" />, kind: 'multi', options: BUYER_TYPES },
   { key: 'geography', label: 'Geography', shortLabel: 'Geo', icon: <Globe className="w-3 h-3" />, kind: 'geo' },
