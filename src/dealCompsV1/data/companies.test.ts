@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { PRESET_COMPANIES, SECTORS, REGIONS, BUYER_TYPES } from './companies';
+import { REGION_COUNTRIES } from './geography';
 
 describe('PRESET_COMPANIES', () => {
-  it('has exactly 3 companies', () => {
-    expect(PRESET_COMPANIES).toHaveLength(3);
+  it('has 6 companies', () => {
+    expect(PRESET_COMPANIES).toHaveLength(6);
   });
 
   it('each company has 10-12 transactions with unique ids', () => {
@@ -29,6 +30,14 @@ describe('PRESET_COMPANIES', () => {
     for (const c of PRESET_COMPANIES) {
       const hasNull = c.transactions.some((t) => t.evEbitdaMultiple === null);
       expect(hasNull).toBe(true);
+    }
+  });
+
+  it('preset filters reference valid sectors and countries', () => {
+    const validCountries = new Set(REGION_COUNTRIES.flatMap((g) => g.countries.map((c) => c.name)));
+    for (const c of PRESET_COMPANIES) {
+      for (const s of c.presetFilters.sector) expect(SECTORS).toContain(s);
+      for (const country of c.presetFilters.geography) expect(validCountries.has(country)).toBe(true);
     }
   });
 
