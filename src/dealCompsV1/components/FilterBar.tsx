@@ -89,13 +89,17 @@ function Chip({
         <button
           onClick={onClick}
           className={cn(
-            'inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium border transition-colors whitespace-nowrap',
+            'inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs border transition-all duration-150 active:scale-[0.97] whitespace-nowrap',
             onRemove ? 'rounded-l-md' : 'rounded-md',
-            active
-              ? 'bg-indigo-50 text-indigo-700 border-indigo-200 ring-1 ring-indigo-200'
-              : hv
-                ? 'bg-indigo-50/50 text-indigo-600 border-indigo-100 hover:bg-indigo-50'
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+            hv
+              ? cn(
+                  'bg-indigo-100 text-indigo-700 border-indigo-300 font-semibold shadow-sm hover:bg-indigo-200/70',
+                  active && 'ring-2 ring-indigo-300'
+                )
+              : cn(
+                  'bg-white text-gray-600 border-gray-200 font-medium hover:bg-gray-50 hover:border-gray-300',
+                  active && 'ring-2 ring-indigo-200 border-indigo-300 text-indigo-700'
+                )
           )}
         >
           {def.icon}
@@ -108,10 +112,8 @@ function Chip({
               onRemove();
             }}
             className={cn(
-              'px-1 py-1.5 border border-l-0 rounded-r-md transition-colors',
-              active
-                ? 'bg-indigo-50 text-indigo-400 border-indigo-200 hover:text-indigo-700'
-                : 'bg-indigo-50/50 text-indigo-300 border-indigo-100 hover:text-indigo-600'
+              'px-1 py-1.5 border border-l-0 rounded-r-md transition-colors bg-indigo-100 text-indigo-500 border-indigo-300 hover:text-indigo-800 hover:bg-indigo-200/70',
+              active && 'ring-2 ring-indigo-300'
             )}
             title="Remove filter"
           >

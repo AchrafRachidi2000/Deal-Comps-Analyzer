@@ -28,18 +28,36 @@ export function FilterGrid({
           const align = i % 2 === 1 ? 'right' : 'left';
           return (
             <div key={def.key} className="relative space-y-1">
-              <label className="text-[11px] text-gray-500 uppercase tracking-wide">{def.label}</label>
+              <label
+                className={cn(
+                  'text-[11px] uppercase tracking-wide flex items-center gap-1.5 transition-colors',
+                  hv ? 'text-indigo-600 font-semibold' : 'text-gray-500'
+                )}
+              >
+                {hv && <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />}
+                {def.label}
+              </label>
               <button
                 onClick={() => setActive((a) => (a === def.key ? null : def.key))}
                 className={cn(
-                  'w-full flex items-center justify-between gap-2 px-3 py-2 bg-white border rounded-md text-sm text-left transition-colors',
-                  open ? 'border-indigo-400 ring-1 ring-indigo-200' : 'border-gray-300 hover:border-indigo-300'
+                  'w-full flex items-center justify-between gap-2 px-3 py-2 border rounded-md text-sm text-left transition-all duration-150',
+                  open
+                    ? 'border-indigo-400 ring-2 ring-indigo-200 bg-white'
+                    : hv
+                      ? 'border-indigo-300 bg-indigo-50/60 hover:border-indigo-400'
+                      : 'border-gray-300 bg-white hover:border-indigo-300'
                 )}
               >
-                <span className={cn('truncate', hv ? 'text-gray-900 font-medium' : 'text-gray-400')}>
+                <span className={cn('truncate', hv ? 'text-indigo-700 font-semibold' : 'text-gray-400')}>
                   {filterValueLabel(def, filters)}
                 </span>
-                <ChevronDown className={cn('w-4 h-4 text-gray-400 flex-shrink-0 transition-transform', open && 'rotate-180')} />
+                <ChevronDown
+                  className={cn(
+                    'w-4 h-4 flex-shrink-0 transition-transform duration-200',
+                    open && 'rotate-180',
+                    hv ? 'text-indigo-400' : 'text-gray-400'
+                  )}
+                />
               </button>
               {open && (
                 <Popover onClose={() => setActive(null)} align={align}>

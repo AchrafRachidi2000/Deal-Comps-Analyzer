@@ -6,7 +6,10 @@ export function StatsGrid({ stats }: { stats: MultipleStat[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {stats.map((s) => (
-        <div key={s.key} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <div
+          key={s.key}
+          className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md hover:border-indigo-200"
+        >
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-gray-900 uppercase tracking-wide">{s.label}</span>
             <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">

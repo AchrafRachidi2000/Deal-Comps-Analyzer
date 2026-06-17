@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import type { CompTransaction, DealCompFilters, PresetCompany } from '@/dealCompsV1/data/types';
 import { filterTransactions } from '@/dealCompsV1/lib/filtering';
 import { computeAllStats } from '@/dealCompsV1/lib/stats';
@@ -81,28 +82,37 @@ export function Dashboard({
         <div className="flex items-center justify-between mb-3">
           <ColumnPicker visible={visibleColumns} onChange={onVisibleColumnsChange} />
           <div className="relative">
-            {showExportMenu && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
-                <div className="absolute top-full right-0 mt-2 w-44 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
-                  <button
-                    onClick={handleExportCsv}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+            <AnimatePresence>
+              {showExportMenu && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
+                  <motion.div
+                    initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                    transition={{ duration: 0.13, ease: 'easeOut' }}
+                    style={{ transformOrigin: 'top right' }}
+                    className="absolute top-full right-0 mt-2 w-44 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-20"
                   >
-                    <FileText className="w-4 h-4 text-gray-500" /> Export to CSV
-                  </button>
-                  <button
-                    onClick={handleExportExcel}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                  >
-                    <FileSpreadsheet className="w-4 h-4 text-green-600" /> Export to Excel
-                  </button>
-                </div>
-              </>
-            )}
+                    <button
+                      onClick={handleExportCsv}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <FileText className="w-4 h-4 text-gray-500" /> Export to CSV
+                    </button>
+                    <button
+                      onClick={handleExportExcel}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <FileSpreadsheet className="w-4 h-4 text-green-600" /> Export to Excel
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
             <button
               onClick={() => setShowExportMenu((s) => !s)}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm flex items-center gap-2"
+              className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm flex items-center gap-2 transition-all active:scale-[0.97]"
             >
               <Download className="w-4 h-4" /> Export
             </button>

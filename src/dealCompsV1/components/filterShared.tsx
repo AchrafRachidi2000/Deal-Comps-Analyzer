@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { motion } from 'motion/react';
 import type { DealCompFilters, RangeFilter } from '@/dealCompsV1/data/types';
 import { FilterDef } from '@/dealCompsV1/data/filterDefs';
 import { SingleSelect, MultiSelect, GeographyControl, RangeControl } from './FilterControls';
@@ -104,11 +105,15 @@ export function Popover({
   }, [onClose]);
 
   return (
-    <div
+    <motion.div
       ref={ref}
+      initial={{ opacity: 0, y: -4, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.13, ease: 'easeOut' }}
+      style={{ transformOrigin: 'top' }}
       className={`absolute top-full ${align === 'right' ? 'right-0' : 'left-0'} mt-1.5 z-30 bg-white rounded-lg shadow-xl border border-gray-200 py-1`}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }

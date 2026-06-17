@@ -1,5 +1,5 @@
-import React from 'react';
-import { PlusCircle, MinusCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { PlusCircle, MinusCircle, Linkedin, Globe, ListPlus } from 'lucide-react';
 import type { CompTransaction } from '@/dealCompsV1/data/types';
 import { COLUMN_DEFS } from '@/dealCompsV1/lib/columns';
 import { cn } from '@/lib/utils';
@@ -7,6 +7,15 @@ import { cn } from '@/lib/utils';
 export type StatusTab = 'all' | 'included' | 'excluded';
 
 const MULTIPLE_KEYS = new Set(['evEbitdaMultiple', 'evRevenueMultiple', 'evEbitMultiple']);
+
+const SECTOR_COLORS: Record<string, string> = {
+  'Medical Devices': 'bg-blue-50 text-blue-700 border-blue-100',
+  Diagnostics: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+  'Health IT / SaaS': 'bg-violet-50 text-violet-700 border-violet-100',
+  'Medical Supplies': 'bg-amber-50 text-amber-700 border-amber-100',
+  Pharmaceuticals: 'bg-rose-50 text-rose-700 border-rose-100',
+  Wearables: 'bg-cyan-50 text-cyan-700 border-cyan-100',
+};
 
 export function ResultsTable({
   transactions,
@@ -22,6 +31,7 @@ export function ResultsTable({
   onToggleStatus: (id: string) => void;
 }) {
   const cols = COLUMN_DEFS.filter((c) => visibleColumns.has(c.key));
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const counts = {
     all: transactions.length,
@@ -35,61 +45,101 @@ export function ResultsTable({
     return true;
   });
 
+  const selectedInView = rows.filter((r) => selected.has(r.id)).length;
+  const allSelected = rows.length > 0 && selectedInView === rows.length;
+  const someSelected = selectedInView > 0 && !allSelected;
+
+  const headerRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (headerRef.current) headerRef.current.indeterminate = someSelected;
+  }, [someSelected]);
+
+  const toggleAll = () =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allSelected) rows.forEach((r) => next.delete(r.id));
+      else rows.forEach((r) => next.add(r.id));
+      return next;
+    });
+
+  const toggleOne = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
   return (
     <div className="flex flex-col">
-      {/* Tabs */}
-      <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-white">
-        <Tab label="All" count={counts.all} active={statusTab === 'all'} onClick={() => onStatusTabChange('all')} />
-        <Tab label="Included" count={counts.included} active={statusTab === 'included'} onClick={() => onStatusTabChange('included')} />
-        <Tab label="Excluded" count={counts.excluded} active={statusTab === 'excluded'} onClick={() => onStatusTabChange('excluded')} />
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-2 p-2 border-b border-gray-200 bg-white">
+        <div className="flex items-center gap-1">
+          <Tab label="All" count={counts.all} active={statusTab === 'all'} onClick={() => onStatusTabChange('all')} />
+          <Tab label="Included" count={counts.included} active={statusTab === 'included'} onClick={() => onStatusTabChange('included')} />
+          <Tab label="Excluded" count={counts.excluded} active={statusTab === 'excluded'} onClick={() => onStatusTabChange('excluded')} />
+        </div>
+        {selectedInView > 0 && (
+          <div className="flex items-center gap-3 pr-1">
+            <span className="text-xs font-medium text-gray-500">{selectedInView} selected</span>
+            <button
+              onClick={() => setSelected(new Set())}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-medium hover:bg-indigo-700 shadow-sm transition-all active:scale-[0.97]"
+            >
+              <ListPlus className="w-3.5 h-3.5" /> Add to screening list
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[60vh]">
         <table className="w-full text-left border-collapse">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 sticky top-0 z-10">
             <tr>
-              <th className="p-3 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 w-[110px]">
-                Status
+              <th className="p-3 w-10 border-b border-gray-200 bg-gray-50">
+                <input
+                  ref={headerRef}
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
               </th>
               {cols.map((c) => (
                 <th
                   key={c.key}
                   className={cn(
-                    'p-3 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 whitespace-nowrap',
+                    'p-3 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 whitespace-nowrap bg-gray-50',
                     c.align === 'right' ? 'text-right' : 'text-left'
                   )}
                 >
                   {c.label}
                 </th>
               ))}
+              <th className="p-3 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right bg-gray-50">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {rows.map((tx) => {
               const excluded = tx.status === 'Excluded';
+              const isSelected = selected.has(tx.id);
               return (
-                <tr key={tx.id} className={cn('hover:bg-gray-50 transition-colors', excluded && 'bg-gray-50/50')}>
+                <tr
+                  key={tx.id}
+                  className={cn(
+                    'transition-colors',
+                    isSelected ? 'bg-indigo-50/50' : excluded ? 'bg-gray-50/40 hover:bg-gray-100/60' : 'hover:bg-indigo-50/30'
+                  )}
+                >
                   <td className="p-3 align-top">
-                    <button
-                      onClick={() => onToggleStatus(tx.id)}
-                      className={cn(
-                        'flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors border',
-                        excluded
-                          ? 'bg-white border-gray-300 text-gray-600 hover:bg-green-50 hover:text-green-700 hover:border-green-200'
-                          : 'bg-red-50 border-red-100 text-red-700 hover:bg-red-100'
-                      )}
-                    >
-                      {excluded ? (
-                        <>
-                          <PlusCircle className="w-3.5 h-3.5" /> Include
-                        </>
-                      ) : (
-                        <>
-                          <MinusCircle className="w-3.5 h-3.5" /> Exclude
-                        </>
-                      )}
-                    </button>
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleOne(tx.id)}
+                      className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
                   </td>
                   {cols.map((c) => (
                     <td
@@ -115,6 +165,24 @@ export function ResultsTable({
                             <div className="text-xs text-gray-500 mt-0.5 max-w-[240px] whitespace-normal line-clamp-2">
                               {tx.targetDescription}
                             </div>
+                            <div className="flex gap-1.5 mt-1.5">
+                              <a
+                                href="#"
+                                onClick={(e) => e.preventDefault()}
+                                className="p-1 text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                                title="LinkedIn"
+                              >
+                                <Linkedin className="w-3 h-3" />
+                              </a>
+                              <a
+                                href="#"
+                                onClick={(e) => e.preventDefault()}
+                                className="p-1 text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
+                                title="Website"
+                              >
+                                <Globe className="w-3 h-3" />
+                              </a>
+                            </div>
                           </div>
                         </div>
                       ) : c.key === 'geography' ? (
@@ -126,6 +194,19 @@ export function ResultsTable({
                           />
                           <span>{tx.location}</span>
                         </div>
+                      ) : c.key === 'sector' ? (
+                        <span
+                          className={cn(
+                            'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border',
+                            excluded ? 'bg-gray-100 text-gray-500 border-gray-200' : SECTOR_COLORS[tx.sector] ?? 'bg-gray-100 text-gray-700 border-gray-200'
+                          )}
+                        >
+                          {tx.sector}
+                        </span>
+                      ) : c.key === 'buyerType' ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                          {tx.buyerType}
+                        </span>
                       ) : MULTIPLE_KEYS.has(c.key) ? (
                         c.display(tx) === '—' ? (
                           <span className="text-gray-300">—</span>
@@ -144,12 +225,33 @@ export function ResultsTable({
                       )}
                     </td>
                   ))}
+                  <td className="p-3 align-top text-right">
+                    <button
+                      onClick={() => onToggleStatus(tx.id)}
+                      className={cn(
+                        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all active:scale-[0.97] border',
+                        excluded
+                          ? 'bg-white border-gray-300 text-gray-600 hover:bg-green-50 hover:text-green-700 hover:border-green-200'
+                          : 'bg-red-50 border-red-100 text-red-700 hover:bg-red-100'
+                      )}
+                    >
+                      {excluded ? (
+                        <>
+                          <PlusCircle className="w-3.5 h-3.5" /> Include
+                        </>
+                      ) : (
+                        <>
+                          <MinusCircle className="w-3.5 h-3.5" /> Exclude
+                        </>
+                      )}
+                    </button>
+                  </td>
                 </tr>
               );
             })}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={cols.length + 1} className="p-8 text-center text-sm text-gray-400">
+                <td colSpan={cols.length + 2} className="p-10 text-center text-sm text-gray-400">
                   No transactions match the current filters.
                 </td>
               </tr>
@@ -171,7 +273,7 @@ function Tab({ label, count, active, onClick }: { label: string; count: number; 
       )}
     >
       {label}
-      <span className={cn('px-2 py-0.5 rounded-full text-xs', active ? 'bg-white shadow-sm' : 'bg-gray-100')}>
+      <span className={cn('px-2 py-0.5 rounded-full text-xs tabular-nums', active ? 'bg-white shadow-sm' : 'bg-gray-100')}>
         {count}
       </span>
     </button>
