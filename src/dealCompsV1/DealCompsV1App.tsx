@@ -6,8 +6,8 @@ import { LandingPage } from './components/LandingPage';
 import { Dashboard } from './components/Dashboard';
 import { AssistantPanel } from '@/shared/AssistantPanel';
 
-type View = 'target' | 'filters' | 'review' | 'dashboard';
-const STEP_OF: Record<Exclude<View, 'dashboard'>, number> = { target: 1, filters: 2, review: 3 };
+type View = 'target' | 'filters' | 'dashboard';
+const STEP_OF: Record<Exclude<View, 'dashboard'>, number> = { target: 1, filters: 2 };
 
 export function DealCompsV1App() {
   const [view, setView] = useState<View>('target');
@@ -21,8 +21,8 @@ export function DealCompsV1App() {
   useEffect(() => {
     window.history.replaceState({ v: 'target' }, '');
     const onPop = (e: PopStateEvent) => {
-      const v = (e.state && (e.state as { v?: View }).v) || 'target';
-      setView(v);
+      const v = e.state && (e.state as { v?: string }).v;
+      setView(v === 'filters' || v === 'dashboard' ? v : 'target');
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
@@ -39,7 +39,6 @@ export function DealCompsV1App() {
   };
   const goNext = () => {
     if (view === 'target') navigate('filters');
-    else if (view === 'filters') navigate('review');
   };
   const goBack = () => window.history.back();
   const handleRun = () => {
@@ -96,7 +95,7 @@ export function DealCompsV1App() {
         <React.Fragment key="setup">
           <LandingPage
             companies={PRESET_COMPANIES}
-            step={view === 'dashboard' ? 3 : STEP_OF[view]}
+            step={view === 'dashboard' ? 2 : STEP_OF[view]}
             company={company}
             filters={filters}
             onSelectCompany={handleSelectCompany}

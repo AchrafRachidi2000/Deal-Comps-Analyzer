@@ -5,13 +5,12 @@ import type { PresetCompany, DealCompFilters } from '@/dealCompsV1/data/types';
 import { cn } from '@/lib/utils';
 import { CompanySelect } from './CompanySelect';
 import { FilterGrid } from './FilterGrid';
-import { ValidationSummary } from './ValidationSummary';
 
-const STEPS = ['Target', 'Filters', 'Review'];
+const STEPS = ['Target', 'Filters'];
 
 interface LandingPageProps {
   companies: PresetCompany[];
-  step: number; // 1 | 2 | 3
+  step: number; // 1 | 2
   company: PresetCompany | null;
   filters: DealCompFilters | null;
   onSelectCompany: (c: PresetCompany) => void;
@@ -88,23 +87,6 @@ export function LandingPage({
                 <motion.div key="s1" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} className="space-y-4">
                   <h3 className="text-sm font-semibold text-gray-900">1. Select target company</h3>
                   <CompanySelect companies={companies} value={company} onSelect={onSelectCompany} />
-                  {company && (
-                    <div className="flex items-start gap-2.5 rounded-lg bg-indigo-50 border border-indigo-100 px-3.5 py-3 text-sm text-indigo-900">
-                      <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-indigo-600" />
-                      {company.id === 'custom' ? (
-                        <span>
-                          <span className="font-semibold">{company.name}</span> isn't in our list — you'll start with empty
-                          filters and the default market comp set (<span className="font-semibold">{company.transactions.length}</span>{' '}
-                          transactions). Set your own filters next.
-                        </span>
-                      ) : (
-                        <span>
-                          Loaded <span className="font-semibold">{company.transactions.length}</span> precedent transactions and
-                          preset filters for <span className="font-semibold">{company.name}</span>.
-                        </span>
-                      )}
-                    </div>
-                  )}
                 </motion.div>
               )}
 
@@ -112,13 +94,6 @@ export function LandingPage({
                 <motion.div key="s2" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} className="space-y-4">
                   <h3 className="text-sm font-semibold text-gray-900">2. Filters</h3>
                   <FilterGrid filters={filters} onChange={onFiltersChange} />
-                </motion.div>
-              )}
-
-              {step === 3 && company && filters && (
-                <motion.div key="s3" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} className="space-y-4">
-                  <h3 className="text-sm font-semibold text-gray-900">3. Validation summary</h3>
-                  <ValidationSummary company={company} filters={filters} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -136,7 +111,7 @@ export function LandingPage({
                   <ArrowLeft className="w-4 h-4" /> Back
                 </button>
               )}
-              {step < 3 ? (
+              {step < 2 ? (
                 <button
                   onClick={onNext}
                   disabled={!company}
