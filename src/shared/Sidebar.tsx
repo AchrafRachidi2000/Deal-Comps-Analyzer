@@ -1,8 +1,8 @@
 import React from 'react';
-import { Handshake, LineChart } from 'lucide-react';
+import { Handshake, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type Module = 'deal' | 'public';
+export type Module = 'deal' | 'dealV1';
 
 interface SidebarProps {
   activeModule: Module;
@@ -20,10 +20,10 @@ export function Sidebar({ activeModule, onModuleChange }: SidebarProps) {
           onClick={() => onModuleChange('deal')}
         />
         <NavItem
-          icon={<LineChart className="w-5 h-5" />}
-          label="Public Comps"
-          active={activeModule === 'public'}
-          onClick={() => onModuleChange('public')}
+          icon={<Rocket className="w-5 h-5" />}
+          label="Deal Comps V1"
+          active={activeModule === 'dealV1'}
+          onClick={() => onModuleChange('dealV1')}
         />
       </div>
 
