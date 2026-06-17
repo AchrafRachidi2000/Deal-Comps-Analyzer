@@ -257,3 +257,36 @@ export const PRESET_COMPANIES: PresetCompany[] = [
     transactions: BLOOMBERG_TX,
   },
 ];
+
+/* ── Fallback comp set for a target that isn't in our list (a broad market default) ── */
+
+export const FALLBACK_TRANSACTIONS = withMultiples([
+  mk('fb-1', 'Epic Games', 'Game engine and interactive entertainment.', 'Media & Data', 'North America', 'United States', 'US', '2025-04-10', 'Tencent', 'Strategic', 4500, 'USD', 600, 120, 3000),
+  mk('fb-2', 'Valve', 'Steam platform and game development.', 'Software', 'North America', 'United States', 'US', '2025-02-15', 'Silver Lake', 'Financial', 400, 'USD', 500, 200, 4000),
+  mk('fb-3', 'Discord', 'Voice and community chat platform.', 'Software', 'North America', 'United States', 'US', '2024-12-05', 'Sequoia', 'Financial', 900, 'USD', 300, null, 3000),
+  mk('fb-4', 'Telegram', 'Messaging and channels platform.', 'Software', 'Middle East & Africa', 'United Arab Emirates', 'AE', '2025-03-20', 'Mubadala', 'Financial', 60, 'USD', 100, null, 1500),
+  mk('fb-5', 'ByteDance', 'TikTok and content platforms.', 'Media & Data', 'Asia Pacific', 'China', 'CN', '2025-01-12', 'General Atlantic', 'Financial', 110000, 'USD', 3000, 600, 6000),
+  mk('fb-6', 'Klarna', 'Buy-now-pay-later payments.', 'Fintech', 'Europe', 'Sweden', 'SE', '2024-10-28', 'Sequoia', 'Financial', 5000, 'EUR', 1000, 100, 4000),
+  mk('fb-7', 'Chime', 'Consumer mobile banking.', 'Fintech', 'North America', 'United States', 'US', '2025-05-16', 'DST Global', 'Financial', 1300, 'USD', 800, null, 5000),
+  mk('fb-8', 'Fanatics', 'Licensed sports merchandise.', 'Consumer', 'North America', 'United States', 'US', '2025-06-22', 'SoftBank', 'Financial', 9000, 'USD', 2000, 200, 5000),
+  mk('fb-9', 'Niantic', 'Augmented-reality games.', 'Software', 'North America', 'United States', 'US', '2024-09-09', 'Coatue', 'Financial', 800, 'USD', 300, 30, 1500),
+  mk('fb-10', 'Plaid', 'Financial data connectivity APIs.', 'Fintech', 'North America', 'United States', 'US', '2025-03-12', 'Visa', 'Strategic', 1300, 'USD', 300, 60, 1800),
+  mk('fb-11', 'Brex', 'Corporate cards and spend management.', 'Fintech', 'North America', 'United States', 'US', '2024-11-20', 'Greenoaks', 'Financial', 1200, 'USD', 320, null, 4800),
+  mk('fb-12', 'Figma', 'Collaborative interface design.', 'Software', 'North America', 'United States', 'US', '2025-04-03', 'Adobe', 'Strategic', 1500, 'USD', 900, 180, 4500),
+  mk('fb-13', 'Anduril', 'Autonomous defense systems.', 'Hardware', 'North America', 'United States', 'US', '2025-05-06', 'Founders Fund', 'Financial', 3000, 'USD', 1000, 320, 8000),
+  mk('fb-14', 'Mars', 'Confectionery, food, and petcare.', 'Consumer', 'North America', 'United States', 'US', '2025-03-10', 'Berkshire Hathaway', 'Strategic', 140000, 'USD', 3000, 600, 6000),
+  mk('fb-15', 'OpenAI', 'Frontier AI models and ChatGPT.', 'AI / ML', 'North America', 'United States', 'US', '2025-05-02', 'Microsoft', 'Strategic', 3000, 'USD', 2000, null, 9000),
+  mk('fb-16', 'Bosch', 'Industrial and consumer technology.', 'Industrial', 'Europe', 'Germany', 'DE', '2024-08-20', 'Robert Bosch Stiftung', 'Strategic', 100000, 'EUR', 3000, 360, 6000),
+]);
+
+// Build a one-off "custom" target for a name typed by the analyst that isn't a preset.
+// Filters start empty (the analyst fills them); the comp set is the fixed market default.
+export function makeCustomCompany(name: string): PresetCompany {
+  return {
+    id: 'custom',
+    name: name.trim() || 'Custom target',
+    description: 'Custom target — set your own filters; screened against the default market comp set.',
+    presetFilters: { ...EMPTY_FILTERS },
+    transactions: FALLBACK_TRANSACTIONS,
+  };
+}

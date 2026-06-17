@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Check, Building2, X } from 'lucide-react';
+import { Search, Check, X, Plus } from 'lucide-react';
 import type { PresetCompany } from '@/dealCompsV1/data/types';
+import { makeCustomCompany } from '@/dealCompsV1/data/companies';
 import { cn } from '@/lib/utils';
 
 export function CompanySelect({
@@ -21,19 +22,24 @@ export function CompanySelect({
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    const id = setTimeout(() => document.addEventListener('mousedown', handler), 0);
-    return () => {
-      clearTimeout(id);
-      document.removeEventListener('mousedown', handler);
-    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
   const q = query.trim().toLowerCase();
-  const matches =
-    q === '' ? companies : companies.filter((c) => c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q));
+  // Prefix match on the company name (typing "S" surfaces Stripe and SpaceX).
+  const matches = q === '' ? companies : companies.filter((c) => c.name.toLowerCase().startsWith(q));
+  // Offer a custom target only when nothing in the list matches what was typed.
+  const showCustom = q !== '' && matches.length === 0;
+
+  const pick = (c: PresetCompany) => {
+    onSelect(c);
+    setQuery(c.name);
+    setOpen(false);
+  };
 
   return (
-    <div ref={ref}>
+    <div className="relative" ref={ref}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         <input
@@ -43,8 +49,8 @@ export function CompanySelect({
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
-          placeholder="Select by company name…"
-          className="w-full pl-9 pr-9 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          placeholder="Type a company name…"
+          className="w-full pl-9 pr-9 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
         {query && (
           <button
@@ -61,21 +67,13 @@ export function CompanySelect({
       </div>
 
       {open && (
-        <div className="mt-1.5 bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-          {matches.length === 0 && <div className="px-3 py-3 text-sm text-gray-400">No matching companies</div>}
-          {matches.map((c, i) => (
+        <div className="absolute top-full left-0 right-0 mt-1.5 z-30 bg-white rounded-lg border border-gray-200 shadow-lg py-1 max-h-72 overflow-y-auto">
+          {matches.map((c) => (
             <button
               key={c.id}
-              onClick={() => {
-                onSelect(c);
-                setQuery(c.name);
-                setOpen(false);
-              }}
-              className={cn(
-                'w-full text-left px-3 py-2.5 hover:bg-indigo-50/60 transition-colors flex items-start gap-3',
-                i > 0 && 'border-t border-gray-100',
-                value?.id === c.id && 'bg-indigo-50/40'
-              )}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => pick(c)}
+              className={cn('w-full text-left px-3 py-2.5 flex items-start gap-3 hover:bg-indigo-50', value?.id === c.id && 'bg-indigo-50/60')}
             >
               <div className="w-9 h-9 rounded-lg bg-gray-900 text-white flex items-center justify-center flex-shrink-0 text-xs font-semibold">
                 {c.name.slice(0, 2).toUpperCase()}
@@ -89,6 +87,22 @@ export function CompanySelect({
               </div>
             </button>
           ))}
+
+          {showCustom && (
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => pick(makeCustomCompany(query.trim()))}
+              className="w-full text-left px-3 py-2.5 flex items-center gap-3 hover:bg-indigo-50"
+            >
+              <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                <Plus className="w-4 h-4 text-indigo-600" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-gray-900 truncate">Use “{query.trim()}”</div>
+                <div className="text-xs text-gray-500">Custom target · default market comp set</div>
+              </div>
+            </button>
+          )}
         </div>
       )}
     </div>

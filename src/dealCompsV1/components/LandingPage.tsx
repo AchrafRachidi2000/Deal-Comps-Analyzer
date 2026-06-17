@@ -91,10 +91,18 @@ export function LandingPage({
                   {company && (
                     <div className="flex items-start gap-2.5 rounded-lg bg-indigo-50 border border-indigo-100 px-3.5 py-3 text-sm text-indigo-900">
                       <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-indigo-600" />
-                      <span>
-                        Loaded <span className="font-semibold">{company.transactions.length}</span> precedent transactions and
-                        preset filters for <span className="font-semibold">{company.name}</span>.
-                      </span>
+                      {company.id === 'custom' ? (
+                        <span>
+                          <span className="font-semibold">{company.name}</span> isn't in our list — you'll start with empty
+                          filters and the default market comp set (<span className="font-semibold">{company.transactions.length}</span>{' '}
+                          transactions). Set your own filters next.
+                        </span>
+                      ) : (
+                        <span>
+                          Loaded <span className="font-semibold">{company.transactions.length}</span> precedent transactions and
+                          preset filters for <span className="font-semibold">{company.name}</span>.
+                        </span>
+                      )}
                     </div>
                   )}
                 </motion.div>
