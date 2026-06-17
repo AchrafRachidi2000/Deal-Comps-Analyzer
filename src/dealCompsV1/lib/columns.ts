@@ -37,14 +37,10 @@ export const COLUMN_DEFS: ColumnDef[] = [
     value: (t) => t.revenue, display: (t) => formatMoney(t.revenue) },
   { key: 'ebitda', label: 'EBITDA', group: 'Transaction', align: 'right', defaultVisible: true,
     value: (t) => t.ebitda, display: (t) => formatMoney(t.ebitda) },
-  { key: 'ebit', label: 'EBIT', group: 'Transaction', align: 'right', defaultVisible: false,
-    value: (t) => t.ebit, display: (t) => formatMoney(t.ebit) },
   { key: 'evEbitdaMultiple', label: 'EV/EBITDA', group: 'Multiples', align: 'right', defaultVisible: true,
     value: (t) => t.evEbitdaMultiple, display: (t) => formatMultiple(t.evEbitdaMultiple) },
   { key: 'evRevenueMultiple', label: 'EV/Revenue', group: 'Multiples', align: 'right', defaultVisible: true,
     value: (t) => t.evRevenueMultiple, display: (t) => formatMultiple(t.evRevenueMultiple) },
-  { key: 'evEbitMultiple', label: 'EV/EBIT', group: 'Multiples', align: 'right', defaultVisible: true,
-    value: (t) => t.evEbitMultiple, display: (t) => formatMultiple(t.evEbitMultiple) },
 ];
 
 export function defaultVisibleColumns(): Set<string> {

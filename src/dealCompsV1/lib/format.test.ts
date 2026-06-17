@@ -4,7 +4,8 @@ import { formatMoney, formatMultiple, formatNumber, formatDate } from './format'
 describe('format', () => {
   it('formatMoney', () => {
     expect(formatMoney(450)).toBe('$450M');
-    expect(formatMoney(1500)).toBe('$1,500M');
+    expect(formatMoney(1500)).toBe('$1.5B');
+    expect(formatMoney(8000)).toBe('$8B');
     expect(formatMoney(null)).toBe('—');
   });
   it('formatMultiple', () => {

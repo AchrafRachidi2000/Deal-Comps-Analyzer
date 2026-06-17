@@ -1,6 +1,6 @@
 import type { CompTransaction } from '@/dealCompsV1/data/types';
 
-export type MultipleKey = 'evEbitdaMultiple' | 'evRevenueMultiple' | 'evEbitMultiple';
+export type MultipleKey = 'evEbitdaMultiple' | 'evRevenueMultiple';
 
 export interface MultipleStat {
   key: MultipleKey;
@@ -14,7 +14,6 @@ export interface MultipleStat {
 export const MULTIPLE_DEFS: { key: MultipleKey; label: string }[] = [
   { key: 'evEbitdaMultiple', label: 'EV / EBITDA' },
   { key: 'evRevenueMultiple', label: 'EV / Revenue' },
-  { key: 'evEbitMultiple', label: 'EV / EBIT' },
 ];
 
 export function median(values: number[]): number {

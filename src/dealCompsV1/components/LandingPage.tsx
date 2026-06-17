@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Rocket, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { PresetCompany, DealCompFilters } from '@/dealCompsV1/data/types';
@@ -7,23 +7,31 @@ import { CompanySelect } from './CompanySelect';
 import { FilterGrid } from './FilterGrid';
 import { ValidationSummary } from './ValidationSummary';
 
-interface LandingPageProps {
-  companies: PresetCompany[];
-  onRun: (company: PresetCompany, filters: DealCompFilters) => void;
-}
-
 const STEPS = ['Target', 'Filters', 'Review'];
 
-export function LandingPage({ companies, onRun }: LandingPageProps) {
-  const [step, setStep] = useState(1);
-  const [company, setCompany] = useState<PresetCompany | null>(null);
-  const [filters, setFilters] = useState<DealCompFilters | null>(null);
+interface LandingPageProps {
+  companies: PresetCompany[];
+  step: number; // 1 | 2 | 3
+  company: PresetCompany | null;
+  filters: DealCompFilters | null;
+  onSelectCompany: (c: PresetCompany) => void;
+  onFiltersChange: (f: DealCompFilters) => void;
+  onNext: () => void;
+  onBack: () => void;
+  onRun: () => void;
+}
 
-  const handleSelect = (c: PresetCompany) => {
-    setCompany(c);
-    setFilters(c.presetFilters);
-  };
-
+export function LandingPage({
+  companies,
+  step,
+  company,
+  filters,
+  onSelectCompany,
+  onFiltersChange,
+  onNext,
+  onBack,
+  onRun,
+}: LandingPageProps) {
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50/50">
       <div className="min-h-full flex items-center justify-center px-6 py-10">
@@ -79,13 +87,13 @@ export function LandingPage({ companies, onRun }: LandingPageProps) {
               {step === 1 && (
                 <motion.div key="s1" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} className="space-y-4">
                   <h3 className="text-sm font-semibold text-gray-900">1. Select target company</h3>
-                  <CompanySelect companies={companies} value={company} onSelect={handleSelect} />
+                  <CompanySelect companies={companies} value={company} onSelect={onSelectCompany} />
                   {company && (
                     <div className="flex items-start gap-2.5 rounded-lg bg-indigo-50 border border-indigo-100 px-3.5 py-3 text-sm text-indigo-900">
                       <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-indigo-600" />
                       <span>
-                        Loaded <span className="font-semibold">{company.transactions.length}</span> precedent transactions and preset
-                        filters for <span className="font-semibold">{company.name}</span>.
+                        Loaded <span className="font-semibold">{company.transactions.length}</span> precedent transactions and
+                        preset filters for <span className="font-semibold">{company.name}</span>.
                       </span>
                     </div>
                   )}
@@ -95,7 +103,7 @@ export function LandingPage({ companies, onRun }: LandingPageProps) {
               {step === 2 && filters && (
                 <motion.div key="s2" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} className="space-y-4">
                   <h3 className="text-sm font-semibold text-gray-900">2. Filters</h3>
-                  <FilterGrid filters={filters} onChange={setFilters} />
+                  <FilterGrid filters={filters} onChange={onFiltersChange} />
                 </motion.div>
               )}
 
@@ -114,24 +122,24 @@ export function LandingPage({ companies, onRun }: LandingPageProps) {
             <div className="flex gap-2.5">
               {step > 1 && (
                 <button
-                  onClick={() => setStep((s) => s - 1)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
+                  onClick={onBack}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-all active:scale-[0.97]"
                 >
                   <ArrowLeft className="w-4 h-4" /> Back
                 </button>
               )}
               {step < 3 ? (
                 <button
-                  onClick={() => setStep((s) => s + 1)}
+                  onClick={onNext}
                   disabled={!company}
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.97]"
                 >
                   Next <ArrowRight className="w-4 h-4" />
                 </button>
               ) : (
                 <button
-                  onClick={() => company && filters && onRun(company, filters)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-2"
+                  onClick={onRun}
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-2 transition-all active:scale-[0.97]"
                 >
                   Run Analysis <Rocket className="w-4 h-4" />
                 </button>

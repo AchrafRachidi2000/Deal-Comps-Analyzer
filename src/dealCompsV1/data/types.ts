@@ -51,12 +51,14 @@ export interface PresetCompany {
 }
 
 export const SECTORS = [
-  'Medical Devices',
-  'Diagnostics',
-  'Health IT / SaaS',
-  'Medical Supplies',
-  'Pharmaceuticals',
-  'Wearables',
+  'Fintech',
+  'AI / ML',
+  'Software',
+  'Consumer',
+  'Hardware',
+  'Industrial',
+  'Media & Data',
+  'Healthcare',
 ];
 
 export const REGIONS = ['North America', 'Europe', 'Asia Pacific', 'Latin America', 'Middle East & Africa'];

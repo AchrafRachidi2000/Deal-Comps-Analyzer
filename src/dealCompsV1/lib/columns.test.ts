@@ -9,9 +9,9 @@ describe('columns', () => {
   it('defaultVisibleColumns includes default-on keys and excludes default-off', () => {
     const v = defaultVisibleColumns();
     expect(v.has('target')).toBe(true);
-    expect(v.has('evEbitMultiple')).toBe(true);
+    expect(v.has('evEbitdaMultiple')).toBe(true);
+    expect(v.has('evRevenueMultiple')).toBe(true);
     expect(v.has('employees')).toBe(false);
-    expect(v.has('ebit')).toBe(false);
   });
   it('toggleColumn adds and removes a normal column', () => {
     const base = defaultVisibleColumns();

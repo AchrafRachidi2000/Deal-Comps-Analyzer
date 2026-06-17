@@ -42,8 +42,8 @@ export function ColumnPicker({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -4, scale: 0.98 }}
           transition={{ duration: 0.13, ease: 'easeOut' }}
-          style={{ transformOrigin: 'top right' }}
-          className="absolute top-full right-0 mt-1.5 z-30 bg-white rounded-lg shadow-xl border border-gray-200 py-2 min-w-[220px] max-h-[360px] overflow-y-auto">
+          style={{ transformOrigin: 'top left' }}
+          className="absolute top-full left-0 mt-1.5 z-30 bg-white rounded-lg shadow-xl border border-gray-200 py-2 min-w-[220px] max-h-[360px] overflow-y-auto">
           {GROUPS.map((group) => (
             <div key={group} className="px-1 pb-1">
               <div className="px-3 py-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wide">{group}</div>

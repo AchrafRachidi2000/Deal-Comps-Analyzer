@@ -4,7 +4,7 @@ import { formatMultiple } from '@/dealCompsV1/lib/format';
 
 export function StatsGrid({ stats }: { stats: MultipleStat[] }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {stats.map((s) => (
         <div
           key={s.key}

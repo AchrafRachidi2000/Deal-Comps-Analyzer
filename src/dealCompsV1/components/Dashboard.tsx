@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { Download, FileSpreadsheet, FileText, RotateCcw, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import type { CompTransaction, DealCompFilters, PresetCompany } from '@/dealCompsV1/data/types';
+import type { DealCompFilters, PresetCompany } from '@/dealCompsV1/data/types';
 import { filterTransactions } from '@/dealCompsV1/lib/filtering';
 import { computeAllStats } from '@/dealCompsV1/lib/stats';
 import { COLUMN_DEFS } from '@/dealCompsV1/lib/columns';
@@ -9,49 +9,44 @@ import { buildCsv, buildWorkbook, downloadCsv, downloadWorkbook } from '@/dealCo
 import { StatsGrid } from './StatsGrid';
 import { FilterBar } from './FilterBar';
 import { ColumnPicker } from './ColumnPicker';
-import { ResultsTable, StatusTab } from './ResultsTable';
+import { ResultsTable } from './ResultsTable';
 
 interface DashboardProps {
   company: PresetCompany;
-  transactions: CompTransaction[];
   filters: DealCompFilters;
+  committedFilters: DealCompFilters;
   onFiltersChange: (f: DealCompFilters) => void;
-  onToggleStatus: (id: string) => void;
+  onRegenerate: () => void;
+  onReset: () => void;
   visibleColumns: Set<string>;
   onVisibleColumnsChange: (v: Set<string>) => void;
 }
 
 export function Dashboard({
   company,
-  transactions,
   filters,
+  committedFilters,
   onFiltersChange,
-  onToggleStatus,
+  onRegenerate,
+  onReset,
   visibleColumns,
   onVisibleColumnsChange,
 }: DashboardProps) {
-  const [statusTab, setStatusTab] = useState<StatusTab>('all');
   const [showExportMenu, setShowExportMenu] = useState(false);
 
+  const transactions = company.transactions;
   const filteredRows = useMemo(() => filterTransactions(transactions, filters), [transactions, filters]);
-  const includedFiltered = useMemo(() => filteredRows.filter((t) => t.status === 'Included'), [filteredRows]);
-  const stats = useMemo(() => computeAllStats(includedFiltered), [includedFiltered]);
+  const stats = useMemo(() => computeAllStats(filteredRows), [filteredRows]);
 
+  const dirty = JSON.stringify(filters) !== JSON.stringify(committedFilters);
   const visibleCols = COLUMN_DEFS.filter((c) => visibleColumns.has(c.key));
 
-  const exportRows = filteredRows.filter((t) => {
-    if (statusTab === 'included') return t.status === 'Included';
-    if (statusTab === 'excluded') return t.status === 'Excluded';
-    return true;
-  });
-
   const handleExportCsv = () => {
-    downloadCsv('Deal_Comps_V1.csv', buildCsv(exportRows, visibleCols));
+    downloadCsv('Deal_Comps_V1.csv', buildCsv(filteredRows, visibleCols));
     setShowExportMenu(false);
   };
-
   const handleExportExcel = () => {
-    downloadWorkbook('Deal_Comps_V1.xlsx', buildWorkbook(exportRows, visibleCols, stats));
+    downloadWorkbook('Deal_Comps_V1.xlsx', buildWorkbook(filteredRows, visibleCols, stats));
     setShowExportMenu(false);
   };
 
@@ -75,6 +70,35 @@ export function Dashboard({
 
         {/* Filters */}
         <FilterBar filters={filters} onChange={onFiltersChange} />
+
+        {/* Regenerate / reset (shown when filters changed since the last run) */}
+        <AnimatePresence>
+          {dirty && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
+              className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-indigo-200 bg-indigo-50"
+            >
+              <span className="text-sm text-indigo-900">Filters changed since the last run.</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={onReset}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all active:scale-[0.97]"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> Reset
+                </button>
+                <button
+                  onClick={onRegenerate}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm transition-all active:scale-[0.97]"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" /> Regenerate
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Table */}
@@ -120,13 +144,7 @@ export function Dashboard({
         </div>
 
         <div className="rounded-lg border border-gray-200 shadow-sm bg-white overflow-hidden">
-          <ResultsTable
-            transactions={filteredRows}
-            visibleColumns={visibleColumns}
-            statusTab={statusTab}
-            onStatusTabChange={setStatusTab}
-            onToggleStatus={onToggleStatus}
-          />
+          <ResultsTable transactions={filteredRows} visibleColumns={visibleColumns} />
         </div>
       </div>
     </div>

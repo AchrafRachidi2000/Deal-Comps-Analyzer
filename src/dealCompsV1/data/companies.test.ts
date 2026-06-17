@@ -7,10 +7,10 @@ describe('PRESET_COMPANIES', () => {
     expect(PRESET_COMPANIES).toHaveLength(6);
   });
 
-  it('each company has 10-12 transactions with unique ids', () => {
+  it('each company has 14-20 transactions with unique ids', () => {
     for (const c of PRESET_COMPANIES) {
-      expect(c.transactions.length).toBeGreaterThanOrEqual(10);
-      expect(c.transactions.length).toBeLessThanOrEqual(12);
+      expect(c.transactions.length).toBeGreaterThanOrEqual(14);
+      expect(c.transactions.length).toBeLessThanOrEqual(20);
       const ids = c.transactions.map((t) => t.id);
       expect(new Set(ids).size).toBe(ids.length);
     }
@@ -26,10 +26,12 @@ describe('PRESET_COMPANIES', () => {
     }
   });
 
-  it('each company has at least one row with a null multiple', () => {
+  it('every transaction has at least one financial and at least one multiple', () => {
     for (const c of PRESET_COMPANIES) {
-      const hasNull = c.transactions.some((t) => t.evEbitdaMultiple === null);
-      expect(hasNull).toBe(true);
+      for (const t of c.transactions) {
+        expect(t.revenue !== null || t.ebitda !== null).toBe(true);
+        expect(t.evRevenueMultiple !== null || t.evEbitdaMultiple !== null).toBe(true);
+      }
     }
   });
 

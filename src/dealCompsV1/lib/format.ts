@@ -2,6 +2,10 @@ const DASH = '—';
 
 export function formatMoney(v: number | null): string {
   if (v === null || !Number.isFinite(v)) return DASH;
+  if (Math.abs(v) >= 1000) {
+    const b = v / 1000;
+    return `$${(Number.isInteger(b) ? b : Number(b.toFixed(1))).toLocaleString('en-US')}B`;
+  }
   return `$${v.toLocaleString('en-US')}M`;
 }
 
