@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 
 export type StatusTab = 'all' | 'included' | 'excluded';
 
+const MULTIPLE_KEYS = new Set(['evEbitdaMultiple', 'evRevenueMultiple', 'evEbitMultiple']);
+
 export function ResultsTable({
   transactions,
   visibleColumns,
@@ -94,15 +96,25 @@ export function ResultsTable({
                       key={c.key}
                       className={cn(
                         'p-3 align-top text-sm whitespace-nowrap',
-                        c.align === 'right' ? 'text-right' : 'text-left',
+                        c.align === 'right' ? 'text-right tabular-nums' : 'text-left',
                         excluded ? 'text-gray-400' : 'text-gray-700'
                       )}
                     >
                       {c.key === 'target' ? (
-                        <div className={cn(excluded && 'opacity-60')}>
-                          <div className="font-semibold text-gray-900">{tx.targetCompany}</div>
-                          <div className="text-xs text-gray-500 mt-0.5 max-w-[260px] whitespace-normal line-clamp-2">
-                            {tx.targetDescription}
+                        <div className={cn('flex items-start gap-3', excluded && 'opacity-60')}>
+                          <div
+                            className={cn(
+                              'w-9 h-9 rounded-lg flex items-center justify-center text-xs font-semibold flex-shrink-0',
+                              excluded ? 'bg-gray-200 text-gray-500' : 'bg-gray-900 text-white'
+                            )}
+                          >
+                            {tx.targetCompany.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-gray-900">{tx.targetCompany}</div>
+                            <div className="text-xs text-gray-500 mt-0.5 max-w-[240px] whitespace-normal line-clamp-2">
+                              {tx.targetDescription}
+                            </div>
                           </div>
                         </div>
                       ) : c.key === 'geography' ? (
@@ -112,8 +124,21 @@ export function ResultsTable({
                             alt={tx.countryCode}
                             className="w-5 h-auto rounded-sm shadow-sm"
                           />
-                          <span>{tx.region}</span>
+                          <span>{tx.location}</span>
                         </div>
+                      ) : MULTIPLE_KEYS.has(c.key) ? (
+                        c.display(tx) === '—' ? (
+                          <span className="text-gray-300">—</span>
+                        ) : (
+                          <span
+                            className={cn(
+                              'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold tabular-nums',
+                              excluded ? 'bg-gray-100 text-gray-500' : 'bg-indigo-50 text-indigo-700'
+                            )}
+                          >
+                            {c.display(tx)}
+                          </span>
+                        )
                       ) : (
                         c.display(tx)
                       )}

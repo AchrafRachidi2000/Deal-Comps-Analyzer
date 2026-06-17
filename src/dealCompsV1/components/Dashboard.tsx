@@ -58,20 +58,22 @@ export function Dashboard({
     <div className="flex-1 flex flex-col h-full overflow-y-auto bg-gray-50/50">
       <div className="px-6 py-4 space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-gray-900">{company.name}</h1>
-            <span className="px-2 py-0.5 bg-gray-200 text-gray-600 text-xs font-medium rounded-full">
-              {filteredRows.length} of {transactions.length} results
-            </span>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.12em] text-indigo-600 uppercase">Precedent Transactions · V1</p>
+            <h1 className="text-2xl font-bold text-gray-900 mt-0.5">{company.name}</h1>
+            <p className="text-sm text-gray-500 mt-1 max-w-2xl">{company.description}</p>
           </div>
+          <span className="px-2.5 py-1 bg-white border border-gray-200 text-gray-600 text-xs font-semibold rounded-full shadow-sm flex-shrink-0 whitespace-nowrap">
+            {filteredRows.length} of {transactions.length} comps
+          </span>
         </div>
 
         {/* Stats */}
         <StatsGrid stats={stats} />
 
         {/* Filters */}
-        <FilterBar filters={filters} onChange={onFiltersChange} transactions={transactions} />
+        <FilterBar filters={filters} onChange={onFiltersChange} />
       </div>
 
       {/* Table */}

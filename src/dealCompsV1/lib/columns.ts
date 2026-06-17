@@ -20,7 +20,7 @@ export const COLUMN_DEFS: ColumnDef[] = [
   { key: 'sector', label: 'Sector', group: 'Company', align: 'left', defaultVisible: true,
     value: (t) => t.sector, display: (t) => t.sector },
   { key: 'geography', label: 'Geography', group: 'Company', align: 'left', defaultVisible: true,
-    value: (t) => t.region, display: (t) => t.region },
+    value: (t) => t.location, display: (t) => t.location },
   { key: 'employees', label: 'Employees', group: 'Company', align: 'right', defaultVisible: false,
     value: (t) => t.employees, display: (t) => formatNumber(t.employees) },
   { key: 'announcementDate', label: 'Announced', group: 'Transaction', align: 'left', defaultVisible: true,

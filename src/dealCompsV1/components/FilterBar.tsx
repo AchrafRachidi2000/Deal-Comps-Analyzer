@@ -1,11 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X } from 'lucide-react';
-import type { CompTransaction, DealCompFilters, RangeFilter, DateRange } from '@/dealCompsV1/data/types';
+import { X, SlidersHorizontal } from 'lucide-react';
+import type { DealCompFilters, RangeFilter, DateRange } from '@/dealCompsV1/data/types';
 import { EMPTY_FILTERS } from '@/dealCompsV1/data/types';
 import { FILTER_DEFS, FilterDef } from '@/dealCompsV1/data/filterDefs';
-import { extentOf } from '@/dealCompsV1/lib/filtering';
 import { cn } from '@/lib/utils';
 import { SingleSelect, MultiSelect, GeographyControl, RangeControl, DateRangeControl } from './FilterControls';
+
+function fmtRangeValue(def: FilterDef, n: number): string {
+  if (def.unit === '$') {
+    if (n >= 1000) {
+      const b = n / 1000;
+      return `$${Number.isInteger(b) ? b : b.toFixed(1)}B`;
+    }
+    return `$${n.toLocaleString('en-US')}M`;
+  }
+  const num = Number.isInteger(n) ? n.toLocaleString('en-US') : n.toFixed(1);
+  return `${num}${def.suffix ?? ''}`;
+}
 
 function chipValue(def: FilterDef, filters: DealCompFilters): string {
   const val = filters[def.key];
@@ -17,12 +28,10 @@ function chipValue(def: FilterDef, filters: DealCompFilters): string {
   }
   if (def.kind === 'range') {
     const r = val as RangeFilter;
-    const u = def.unit ?? '';
-    const s = def.suffix ?? '';
     if (r.min !== null && r.max !== null && r.min > r.max) return 'Any';
-    if (r.min !== null && r.max !== null) return `${u}${r.min}${s} – ${u}${r.max}${s}`;
-    if (r.min !== null) return `≥ ${u}${r.min}${s}`;
-    if (r.max !== null) return `≤ ${u}${r.max}${s}`;
+    if (r.min !== null && r.max !== null) return `${fmtRangeValue(def, r.min)} – ${fmtRangeValue(def, r.max)}`;
+    if (r.min !== null) return `≥ ${fmtRangeValue(def, r.min)}`;
+    if (r.max !== null) return `≤ ${fmtRangeValue(def, r.max)}`;
     return 'Any';
   }
   const d = val as DateRange;
@@ -42,11 +51,9 @@ function hasValue(def: FilterDef, filters: DealCompFilters): boolean {
 export function FilterBar({
   filters,
   onChange,
-  transactions,
 }: {
   filters: DealCompFilters;
   onChange: (next: DealCompFilters) => void;
-  transactions: CompTransaction[];
 }) {
   const [active, setActive] = useState<string | null>(null);
 
@@ -61,14 +68,22 @@ export function FilterBar({
   const activeCount = FILTER_DEFS.filter((d) => hasValue(d, filters)).length;
 
   return (
-    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
-      <div className="flex items-center gap-2 mb-1">
-        <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+      <div className="flex items-center gap-2 mb-3">
+        <SlidersHorizontal className="w-3.5 h-3.5 text-gray-400" />
         <span className="text-xs font-semibold text-gray-900 uppercase tracking-wide">Filters</span>
         {activeCount > 0 && (
-          <span className="text-[10px] font-medium bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full">
+          <span className="text-[10px] font-semibold bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full">
             {activeCount} active
           </span>
+        )}
+        {activeCount > 0 && (
+          <button
+            onClick={() => onChange(EMPTY_FILTERS)}
+            className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-red-600 transition-colors"
+          >
+            <X className="w-3.5 h-3.5" /> Clear all
+          </button>
         )}
       </div>
 
@@ -100,17 +115,14 @@ export function FilterBar({
                   />
                 )}
                 {def.kind === 'geo' && (
-                  <GeographyControl
-                    value={filters.geography}
-                    onChange={(next) => set('geography', next)}
-                    transactions={transactions}
-                  />
+                  <GeographyControl value={filters.geography} onChange={(next) => set('geography', next)} />
                 )}
                 {def.kind === 'range' && (
                   <RangeControl
                     value={filters[def.key] as RangeFilter}
                     onChange={(r) => set(def.key, r as DealCompFilters[typeof def.key])}
-                    {...extentOf(transactions, def.field!)}
+                    min={def.min ?? 0}
+                    max={def.max ?? 100}
                     step={def.step}
                     unit={def.unit}
                     suffix={def.suffix}
@@ -123,15 +135,6 @@ export function FilterBar({
             )}
           </Chip>
         ))}
-
-        {activeCount > 0 && (
-          <button
-            onClick={() => onChange(EMPTY_FILTERS)}
-            className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 border border-red-200 rounded-md text-xs font-medium text-red-600 hover:bg-red-100 transition-colors"
-          >
-            <X className="w-3.5 h-3.5" /> Clear all
-          </button>
-        )}
       </div>
     </div>
   );
@@ -161,17 +164,17 @@ function Chip({
         <button
           onClick={onClick}
           className={cn(
-            'inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium border transition-colors whitespace-nowrap',
+            'inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium border transition-colors whitespace-nowrap',
             onRemove ? 'rounded-l-md' : 'rounded-md',
             active
               ? 'bg-indigo-50 text-indigo-700 border-indigo-200 ring-1 ring-indigo-200'
               : hv
                 ? 'bg-indigo-50/50 text-indigo-600 border-indigo-100 hover:bg-indigo-50'
-                : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
           )}
         >
           {def.icon}
-          <span className="max-w-[200px] truncate">{label}</span>
+          <span className="max-w-[220px] truncate">{label}</span>
         </button>
         {onRemove && (
           <button
@@ -180,7 +183,7 @@ function Chip({
               onRemove();
             }}
             className={cn(
-              'px-1 py-1 border border-l-0 rounded-r-md transition-colors',
+              'px-1 py-1.5 border border-l-0 rounded-r-md transition-colors',
               active
                 ? 'bg-indigo-50 text-indigo-400 border-indigo-200 hover:text-indigo-700'
                 : 'bg-indigo-50/50 text-indigo-300 border-indigo-100 hover:text-indigo-600'
@@ -212,7 +215,7 @@ function Popover({ children, onClose }: { children: React.ReactNode; onClose: ()
   return (
     <div
       ref={ref}
-      className="absolute top-full left-0 mt-1.5 z-30 bg-white rounded-lg shadow-lg border border-gray-200 py-1"
+      className="absolute top-full left-0 mt-1.5 z-30 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
     >
       {children}
     </div>

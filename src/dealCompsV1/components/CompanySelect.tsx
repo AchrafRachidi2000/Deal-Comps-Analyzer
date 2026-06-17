@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Check, Building2 } from 'lucide-react';
+import { Search, Check, Building2, X } from 'lucide-react';
 import type { PresetCompany } from '@/dealCompsV1/data/types';
+import { cn } from '@/lib/utils';
 
 export function CompanySelect({
   companies,
@@ -28,14 +29,13 @@ export function CompanySelect({
   }, [open]);
 
   const q = query.trim().toLowerCase();
-  const matches = q === ''
-    ? companies
-    : companies.filter((c) => c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q));
+  const matches =
+    q === '' ? companies : companies.filter((c) => c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q));
 
   return (
-    <div className="relative" ref={ref}>
+    <div ref={ref}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         <input
           value={query}
           onChange={(e) => {
@@ -44,14 +44,25 @@ export function CompanySelect({
           }}
           onFocus={() => setOpen(true)}
           placeholder="Select by company name…"
-          className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="w-full pl-9 pr-9 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
+        {query && (
+          <button
+            onClick={() => {
+              setQuery('');
+              setOpen(true);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 z-30 bg-white rounded-lg shadow-lg border border-gray-200 py-1 max-h-[280px] overflow-y-auto">
-          {matches.length === 0 && <div className="px-3 py-2.5 text-sm text-gray-400">No matching companies</div>}
-          {matches.map((c) => (
+        <div className="mt-1.5 bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          {matches.length === 0 && <div className="px-3 py-3 text-sm text-gray-400">No matching companies</div>}
+          {matches.map((c, i) => (
             <button
               key={c.id}
               onClick={() => {
@@ -59,10 +70,14 @@ export function CompanySelect({
                 setQuery(c.name);
                 setOpen(false);
               }}
-              className="w-full text-left px-3 py-2.5 hover:bg-indigo-50 transition-colors flex items-start gap-2.5"
+              className={cn(
+                'w-full text-left px-3 py-2.5 hover:bg-indigo-50/60 transition-colors flex items-start gap-3',
+                i > 0 && 'border-t border-gray-100',
+                value?.id === c.id && 'bg-indigo-50/40'
+              )}
             >
-              <div className="w-8 h-8 rounded-md bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                <Building2 className="w-4 h-4 text-indigo-600" />
+              <div className="w-9 h-9 rounded-lg bg-gray-900 text-white flex items-center justify-center flex-shrink-0 text-xs font-semibold">
+                {c.name.slice(0, 2).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
