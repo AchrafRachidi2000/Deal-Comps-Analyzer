@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AnimatePresence } from 'motion/react';
 import { ChevronDown } from 'lucide-react';
 import type { DealCompFilters } from '@/dealCompsV1/data/types';
 import { FILTER_DEFS } from '@/dealCompsV1/data/filterDefs';
@@ -34,7 +35,7 @@ export function FilterGrid({
                   hv ? 'text-indigo-600 font-semibold' : 'text-gray-500'
                 )}
               >
-                {hv && <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />}
+                {hv && <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" aria-hidden="true" />}
                 {def.label}
               </label>
               <button
@@ -44,7 +45,7 @@ export function FilterGrid({
                   open
                     ? 'border-indigo-400 ring-2 ring-indigo-200 bg-white'
                     : hv
-                      ? 'border-indigo-300 bg-indigo-50/60 hover:border-indigo-400'
+                      ? 'border-indigo-300 bg-indigo-100 hover:border-indigo-400'
                       : 'border-gray-300 bg-white hover:border-indigo-300'
                 )}
               >
@@ -59,11 +60,13 @@ export function FilterGrid({
                   )}
                 />
               </button>
-              {open && (
-                <Popover onClose={() => setActive(null)} align={align}>
-                  <FilterControl def={def} filters={filters} onChange={onChange} />
-                </Popover>
-              )}
+              <AnimatePresence>
+                {open && (
+                  <Popover onClose={() => setActive(null)} align={align}>
+                    <FilterControl def={def} filters={filters} onChange={onChange} />
+                  </Popover>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}

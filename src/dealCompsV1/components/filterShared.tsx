@@ -70,6 +70,7 @@ export function FilterControl({
       {def.kind === 'geo' && <GeographyControl value={filters.geography} onChange={(next) => set('geography', next)} />}
       {def.kind === 'range' && (
         <RangeControl
+          label={def.label}
           value={filters[def.key] as RangeFilter}
           onChange={(r) => set(def.key, r as DealCompFilters[typeof def.key])}
           min={def.min ?? 0}
@@ -107,10 +108,13 @@ export function Popover({
   return (
     <motion.div
       ref={ref}
+      role="group"
+      aria-label="Filter options"
       initial={{ opacity: 0, y: -4, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -4, scale: 0.98 }}
       transition={{ duration: 0.13, ease: 'easeOut' }}
-      style={{ transformOrigin: 'top' }}
+      style={{ transformOrigin: align === 'right' ? 'top right' : 'top left' }}
       className={`absolute top-full ${align === 'right' ? 'right-0' : 'left-0'} mt-1.5 z-30 bg-white rounded-lg shadow-xl border border-gray-200 py-1`}
     >
       {children}

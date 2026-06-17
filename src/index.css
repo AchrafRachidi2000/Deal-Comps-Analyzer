@@ -74,6 +74,24 @@ body {
   background: transparent;
 }
 
+/* Visible keyboard focus for interactive elements (0-specificity so components can override) */
+:where(button, a, [role='button']):focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Keyboard focus ring on the range-slider thumbs */
+.range-slider:focus-visible {
+  outline: none;
+}
+.range-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.35);
+}
+.range-slider:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.35);
+}
+
 /* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

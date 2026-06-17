@@ -12,7 +12,7 @@ export function StatsGrid({ stats }: { stats: MultipleStat[] }) {
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-gray-900 uppercase tracking-wide">{s.label}</span>
-            <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-full tabular-nums">
               n = {s.n}
             </span>
           </div>

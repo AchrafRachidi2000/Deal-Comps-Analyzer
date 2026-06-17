@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { PlusCircle, MinusCircle, Linkedin, Globe, ListPlus } from 'lucide-react';
+import { PlusCircle, MinusCircle, Linkedin, Globe, ListPlus, SearchX } from 'lucide-react';
 import type { CompTransaction } from '@/dealCompsV1/data/types';
 import { COLUMN_DEFS } from '@/dealCompsV1/lib/columns';
 import { cn } from '@/lib/utils';
@@ -32,6 +32,18 @@ export function ResultsTable({
 }) {
   const cols = COLUMN_DEFS.filter((c) => visibleColumns.has(c.key));
   const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  // Drop selected ids that are no longer in the (filtered) transaction set.
+  useEffect(() => {
+    setSelected((prev) => {
+      if (prev.size === 0) return prev;
+      const valid = new Set(transactions.map((t) => t.id));
+      let changed = false;
+      const next = new Set<string>();
+      prev.forEach((id) => (valid.has(id) ? next.add(id) : (changed = true)));
+      return changed ? next : prev;
+    });
+  }, [transactions]);
 
   const counts = {
     all: transactions.length,
@@ -73,7 +85,7 @@ export function ResultsTable({
     <div className="flex flex-col">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2 p-2 border-b border-gray-200 bg-white">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1" role="tablist" aria-label="Filter transactions by status">
           <Tab label="All" count={counts.all} active={statusTab === 'all'} onClick={() => onStatusTabChange('all')} />
           <Tab label="Included" count={counts.included} active={statusTab === 'included'} onClick={() => onStatusTabChange('included')} />
           <Tab label="Excluded" count={counts.excluded} active={statusTab === 'excluded'} onClick={() => onStatusTabChange('excluded')} />
@@ -100,6 +112,7 @@ export function ResultsTable({
                 <input
                   ref={headerRef}
                   type="checkbox"
+                  aria-label="Select all transactions"
                   checked={allSelected}
                   onChange={toggleAll}
                   className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
@@ -130,12 +143,17 @@ export function ResultsTable({
                   key={tx.id}
                   className={cn(
                     'transition-colors',
-                    isSelected ? 'bg-indigo-50/50' : excluded ? 'bg-gray-50/40 hover:bg-gray-100/60' : 'hover:bg-indigo-50/30'
+                    isSelected
+                      ? 'bg-indigo-50'
+                      : excluded
+                        ? 'bg-gray-50/40 hover:bg-gray-100/80'
+                        : 'hover:bg-indigo-50/70'
                   )}
                 >
-                  <td className="p-3 align-top">
+                  <td className={cn('p-3 align-top', isSelected && 'shadow-[inset_3px_0_0_0_#6366f1]')}>
                     <input
                       type="checkbox"
+                      aria-label={`Select ${tx.targetCompany}`}
                       checked={isSelected}
                       onChange={() => toggleOne(tx.id)}
                       className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
@@ -170,17 +188,17 @@ export function ResultsTable({
                                 href="#"
                                 onClick={(e) => e.preventDefault()}
                                 className="p-1 text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
-                                title="LinkedIn"
+                                aria-label={`${tx.targetCompany} on LinkedIn`}
                               >
-                                <Linkedin className="w-3 h-3" />
+                                <Linkedin className="w-3 h-3" aria-hidden="true" />
                               </a>
                               <a
                                 href="#"
                                 onClick={(e) => e.preventDefault()}
                                 className="p-1 text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
-                                title="Website"
+                                aria-label={`${tx.targetCompany} website`}
                               >
-                                <Globe className="w-3 h-3" />
+                                <Globe className="w-3 h-3" aria-hidden="true" />
                               </a>
                             </div>
                           </div>
@@ -189,7 +207,7 @@ export function ResultsTable({
                         <div className={cn('flex items-center gap-2', excluded && 'opacity-60')}>
                           <img
                             src={`https://flagcdn.com/w20/${tx.countryCode.toLowerCase()}.png`}
-                            alt={tx.countryCode}
+                            alt={`${tx.location} flag`}
                             className="w-5 h-auto rounded-sm shadow-sm"
                           />
                           <span>{tx.location}</span>
@@ -204,7 +222,16 @@ export function ResultsTable({
                           {tx.sector}
                         </span>
                       ) : c.key === 'buyerType' ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                        <span
+                          className={cn(
+                            'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border',
+                            excluded
+                              ? 'bg-gray-100 text-gray-500 border-gray-200'
+                              : tx.buyerType === 'Strategic'
+                                ? 'bg-sky-50 text-sky-700 border-sky-100'
+                                : 'bg-purple-50 text-purple-700 border-purple-100'
+                          )}
+                        >
                           {tx.buyerType}
                         </span>
                       ) : MULTIPLE_KEYS.has(c.key) ? (
@@ -251,8 +278,12 @@ export function ResultsTable({
             })}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={cols.length + 2} className="p-10 text-center text-sm text-gray-400">
-                  No transactions match the current filters.
+                <td colSpan={cols.length + 2} className="p-12 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <SearchX className="w-10 h-10 text-gray-300" aria-hidden="true" />
+                    <p className="text-sm font-medium text-gray-600">No comps match the current filters</p>
+                    <p className="text-xs text-gray-400">Try widening a range or clearing a filter above.</p>
+                  </div>
                 </td>
               </tr>
             )}
@@ -267,13 +298,20 @@ function Tab({ label, count, active, onClick }: { label: string; count: number; 
   return (
     <button
       onClick={onClick}
+      role="tab"
+      aria-selected={active}
       className={cn(
         'px-3 py-1.5 text-sm font-medium rounded-lg transition-colors flex items-center gap-2',
-        active ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+        active ? 'bg-indigo-100 text-indigo-900' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
       )}
     >
       {label}
-      <span className={cn('px-2 py-0.5 rounded-full text-xs tabular-nums', active ? 'bg-white shadow-sm' : 'bg-gray-100')}>
+      <span
+        className={cn(
+          'px-2 py-0.5 rounded-full text-xs tabular-nums',
+          active ? 'bg-white text-indigo-700 shadow-sm' : 'bg-gray-100'
+        )}
+      >
         {count}
       </span>
     </button>

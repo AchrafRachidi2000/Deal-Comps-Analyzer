@@ -53,6 +53,7 @@ export function CompanySelect({
               setOpen(true);
             }}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500"
+            aria-label="Clear search"
           >
             <X className="w-4 h-4" />
           </button>

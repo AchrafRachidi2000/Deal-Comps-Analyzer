@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Check, ChevronRight } from 'lucide-react';
 import type { RangeFilter } from '@/dealCompsV1/data/types';
 import { REGION_COUNTRIES } from '@/dealCompsV1/data/geography';
@@ -141,9 +142,10 @@ export function GeographyControl({
               <button
                 onClick={() => toggleExpand(g.region)}
                 className="p-0.5 text-gray-400 hover:text-gray-700 flex-shrink-0"
-                aria-label={open ? 'Collapse' : 'Expand'}
+                aria-label={open ? `Collapse ${g.region}` : `Expand ${g.region}`}
+                aria-expanded={open}
               >
-                <ChevronRight className={cn('w-3.5 h-3.5 transition-transform', open && 'rotate-90')} />
+                <ChevronRight className={cn('w-3.5 h-3.5 transition-transform', open && 'rotate-90')} aria-hidden="true" />
               </button>
               <label className="flex items-center gap-2 flex-1 cursor-pointer text-sm font-medium text-gray-800 min-w-0">
                 <IndeterminateCheckbox checked={all} indeterminate={sel > 0} onChange={() => toggleRegion(names, all)} />
@@ -153,25 +155,39 @@ export function GeographyControl({
                 </span>
               </label>
             </div>
-            {open && (
-              <div className="pl-7 pb-1">
-                {g.countries.map((c) => (
-                  <label
-                    key={c.name}
-                    className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-gray-50 cursor-pointer text-sm text-gray-600"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={value.includes(c.name)}
-                      onChange={() => toggleCountry(c.name)}
-                      className="w-3.5 h-3.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <img src={`https://flagcdn.com/w20/${c.code.toLowerCase()}.png`} alt={c.code} className="w-4 h-auto rounded-sm" />
-                    {c.name}
-                  </label>
-                ))}
-              </div>
-            )}
+            <AnimatePresence initial={false}>
+              {open && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                  className="overflow-hidden"
+                >
+                  <div className="pl-7 pb-1">
+                    {g.countries.map((c) => (
+                      <label
+                        key={c.name}
+                        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-gray-50 cursor-pointer text-sm text-gray-600"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={value.includes(c.name)}
+                          onChange={() => toggleCountry(c.name)}
+                          className="w-3.5 h-3.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+                        <img
+                          src={`https://flagcdn.com/w20/${c.code.toLowerCase()}.png`}
+                          alt={`${c.name} flag`}
+                          className="w-4 h-auto rounded-sm"
+                        />
+                        {c.name}
+                      </label>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         );
       })}
@@ -189,6 +205,7 @@ export function RangeControl({
   step = 1,
   unit = '',
   suffix = '',
+  label = 'Range',
 }: {
   value: RangeFilter;
   onChange: (r: RangeFilter) => void;
@@ -197,6 +214,7 @@ export function RangeControl({
   step?: number;
   unit?: string;
   suffix?: string;
+  label?: string;
 }) {
   const lo = clamp(value.min ?? min, min, max);
   const hi = clamp(value.max ?? max, min, max);
@@ -237,6 +255,7 @@ export function RangeControl({
         <input
           type="range"
           className="range-slider"
+          aria-label={`${label} minimum`}
           min={min}
           max={max}
           step={step}
@@ -246,6 +265,7 @@ export function RangeControl({
         <input
           type="range"
           className="range-slider"
+          aria-label={`${label} maximum`}
           min={min}
           max={max}
           step={step}

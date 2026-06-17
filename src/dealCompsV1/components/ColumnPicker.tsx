@@ -50,6 +50,7 @@ export function ColumnPicker({
               {COLUMN_DEFS.filter((c) => c.group === group).map((c) => (
                 <label
                   key={c.key}
+                  title={c.alwaysOn ? 'This column is always shown' : undefined}
                   className="flex items-center gap-2.5 px-3 py-1.5 rounded-md hover:bg-gray-50 cursor-pointer text-sm text-gray-700"
                 >
                   <input

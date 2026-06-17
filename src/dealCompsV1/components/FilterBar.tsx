@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AnimatePresence } from 'motion/react';
 import { X, SlidersHorizontal } from 'lucide-react';
 import type { DealCompFilters } from '@/dealCompsV1/data/types';
 import { EMPTY_FILTERS } from '@/dealCompsV1/data/types';
@@ -25,7 +26,7 @@ export function FilterBar({
   return (
     <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
       <div className="flex items-center gap-2 mb-3">
-        <SlidersHorizontal className="w-3.5 h-3.5 text-gray-400" />
+        <SlidersHorizontal className="w-3.5 h-3.5 text-gray-400" aria-hidden="true" />
         <span className="text-xs font-semibold text-gray-900 uppercase tracking-wide">Filters</span>
         {activeCount > 0 && (
           <span className="text-[10px] font-semibold bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full">
@@ -53,11 +54,13 @@ export function FilterBar({
             onClick={() => setActive((a) => (a === def.key ? null : def.key))}
             onRemove={hasFilterValue(def, filters) ? () => reset(def.key) : undefined}
           >
-            {active === def.key && (
-              <Popover onClose={() => setActive(null)}>
-                <FilterControl def={def} filters={filters} onChange={onChange} />
-              </Popover>
-            )}
+            <AnimatePresence>
+              {active === def.key && (
+                <Popover onClose={() => setActive(null)}>
+                  <FilterControl def={def} filters={filters} onChange={onChange} />
+                </Popover>
+              )}
+            </AnimatePresence>
           </Chip>
         ))}
       </div>
@@ -115,7 +118,7 @@ function Chip({
               'px-1 py-1.5 border border-l-0 rounded-r-md transition-colors bg-indigo-100 text-indigo-500 border-indigo-300 hover:text-indigo-800 hover:bg-indigo-200/70',
               active && 'ring-2 ring-indigo-300'
             )}
-            title="Remove filter"
+            aria-label={`Remove ${def.label} filter`}
           >
             <X className="w-3 h-3" />
           </button>
