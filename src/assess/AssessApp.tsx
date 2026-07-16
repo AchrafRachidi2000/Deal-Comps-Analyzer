@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  ArrowLeft,
   ChevronRight,
   Save,
   Plus,
@@ -120,19 +121,34 @@ const SECTIONS = [
   { id: 'swot', label: 'SWOT analysis' },
 ];
 
-export function AssessApp() {
+export function AssessApp({
+  companyName = COMPANY.name,
+  onBack,
+  onGenerateDealComps,
+}: {
+  companyName?: string;
+  onBack?: () => void;
+  onGenerateDealComps?: () => void;
+} = {}) {
   const [swotTab, setSwotTab] = useState<keyof typeof SWOT>('Strength');
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/60">
       {/* Top bar */}
       <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>Medtech</span>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-          <span>Assess · Company Radar</span>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-900 font-medium">{COMPANY.name}</span>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button onClick={onBack} className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900">
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+          )}
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <span>Medtech</span>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <span>Assess · Company Radar</span>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <span className="text-gray-900 font-medium">{companyName}</span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-md">
@@ -175,10 +191,10 @@ export function AssessApp() {
             {/* Company header */}
             <div className="flex items-start gap-4">
               <div className="w-16 h-16 rounded-xl bg-gray-900 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
-                {COMPANY.name.slice(0, 2).toUpperCase()}
+                {companyName.slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{COMPANY.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{companyName}</h1>
                 <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5" /> {COMPANY.location}
@@ -215,7 +231,7 @@ export function AssessApp() {
                 ))}
               </div>
               <p className="text-sm text-gray-600 leading-relaxed mt-4">
-                {COMPANY.name} provides surgical and wound-care technologies that enable healthcare professionals to improve
+                {companyName} provides surgical and wound-care technologies that enable healthcare professionals to improve
                 clinical outcomes and reduce costs, differentiated by proprietary tissue-repair and wound-care products
                 distributed globally through direct and distributor partnerships.
               </p>
@@ -307,7 +323,7 @@ export function AssessApp() {
             </Section>
 
             {/* Deal Comps — right below Transactions */}
-            <DealCompsSection companyName={COMPANY.name} />
+            <DealCompsSection companyName={companyName} onGenerate={onGenerateDealComps ?? (() => {})} />
 
             {/* Similar companies */}
             <Section id="similar" title={`Similar companies · ${SIMILAR.length}`}>

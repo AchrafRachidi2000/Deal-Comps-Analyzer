@@ -1,8 +1,8 @@
 import React from 'react';
-import { Handshake, Rocket, Radar } from 'lucide-react';
+import { Handshake, Rocket, Radar, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type Module = 'assess' | 'deal' | 'dealV1';
+export type Module = 'home' | 'assess' | 'deal' | 'dealV1';
 
 interface SidebarProps {
   activeModule: Module;
@@ -13,6 +13,12 @@ export function Sidebar({ activeModule, onModuleChange }: SidebarProps) {
   return (
     <div className="w-16 h-screen bg-white border-r border-gray-200 flex flex-col items-center py-4 z-20 flex-shrink-0">
       <div className="flex-1 flex flex-col gap-4 w-full items-center">
+        <NavItem
+          icon={<Home className="w-5 h-5" />}
+          label="Home"
+          active={activeModule === 'home'}
+          onClick={() => onModuleChange('home')}
+        />
         <NavItem
           icon={<Radar className="w-5 h-5" />}
           label="Assess"
