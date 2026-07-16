@@ -18,6 +18,23 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DealCompsSection } from './DealCompsSection';
+import { AssistantPanel } from '@/shared/AssistantPanel';
+
+const DEAL_COMPS_INTENT = /(deal\s?comp|comparable|precedent|multiple|valuation|benchmark|ev\/)/i;
+
+const ASSIST_REASONING = (company: string) => (
+  <>
+    <p className="mb-2">
+      You're in <span className="font-medium text-gray-900">Company Radar</span> for{' '}
+      <span className="font-medium text-indigo-600">@{company}</span>.
+    </p>
+    <p>
+      I can summarize the business, surface key people and transactions, or spin up a{' '}
+      <span className="italic">Deal Comps</span> sub-workflow to benchmark {company} against comparable precedent
+      transactions.
+    </p>
+  </>
+);
 
 const COMPANY = {
   name: 'Sanara MedTech',
@@ -131,9 +148,26 @@ export function AssessApp({
   onGenerateDealComps?: () => void;
 } = {}) {
   const [swotTab, setSwotTab] = useState<keyof typeof SWOT>('Strength');
+  const [assistantCollapsed, setAssistantCollapsed] = useState(false);
+
+  const handleAssistantSend = async (userMessage: string, _history: unknown, ctx: { pushStatus: (t: string) => void }) => {
+    if (DEAL_COMPS_INTENT.test(userMessage)) {
+      ctx.pushStatus(`Pre-generating screening filters for ${companyName}…`);
+      setTimeout(() => onGenerateDealComps?.(), 700);
+      return `Opening the Deal Comps sub-workflow for ${companyName} — validate the pre-generated filters (buyer type, revenue, EV/Revenue, EV/EBITDA) to review comparable precedent transactions.`;
+    }
+    if (/people|team|ceo|management|founder|leadership/i.test(userMessage)) {
+      return `${companyName} is led by its CEO and a small executive team spanning finance, accounting and operations — see the Key people section for the full roster.`;
+    }
+    if (/business|model|revenue|product|offer|what.*do/i.test(userMessage)) {
+      return `${companyName} develops and distributes surgical and wound-care technologies, sold mostly direct into North American hospitals and surgical centers. See the Business section for offerings, customers and strategy.`;
+    }
+    return `I can help you analyze ${companyName} — ask for deal comps, a business summary, or the key people.`;
+  };
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/60">
+    <div className="flex-1 flex h-full overflow-hidden bg-gray-50/60">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
       {/* Top bar */}
       <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -404,6 +438,23 @@ export function AssessApp({
           </main>
         </div>
       </div>
+      </div>
+
+      <AssistantPanel
+        title="Assess copilot"
+        collapsed={assistantCollapsed}
+        onToggleCollapsed={() => setAssistantCollapsed((c) => !c)}
+        reasoningContent={ASSIST_REASONING(companyName)}
+        suggestedPrompts={['Generate deal comps', 'Summarize the business', 'Who are the key people?']}
+        initialMessages={[
+          {
+            role: 'assistant',
+            content: `Hi — I'm your Assess copilot for ${companyName}. Ask me anything, or use a suggestion below.`,
+            timestamp: '',
+          },
+        ]}
+        onSend={handleAssistantSend}
+      />
     </div>
   );
 }
