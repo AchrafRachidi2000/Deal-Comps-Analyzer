@@ -9,15 +9,27 @@ import {
   ChevronUp,
   PanelRightOpen,
   PanelRightClose,
+  ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
+
+export interface MessageAction {
+  label: string;
+  onClick: () => void;
+  /** If set, clicking the CTA streams these as status lines (with a pause each) before running onClick. */
+  loadingSteps?: string[];
+}
 
 export interface ChatMessage {
   role: string; // 'user' | 'assistant' | 'status'
   content: string;
   timestamp: string;
+  action?: MessageAction;
 }
+
+// An onSend handler may reply with plain text, or with text plus an inline CTA.
+export type AssistantReply = string | { content: string; action?: MessageAction };
 
 export interface AssistantSendContext {
   pushStatus: (text: string) => void;
@@ -31,12 +43,18 @@ interface AssistantPanelProps {
   autoReplyText?: string;
   collapsed?: boolean;
   onToggleCollapsed?: () => void;
+  /** Show a "thinking" indicator for this long on mount before revealing the first message. */
+  bootDelayMs?: number;
+  /** Minimum time the typing indicator stays up on an onSend reply, so answers never pop in instantly. */
+  thinkingMs?: number;
   onSend?: (
     userMessage: string,
     history: ChatMessage[],
     ctx: AssistantSendContext
-  ) => Promise<string>;
+  ) => Promise<AssistantReply>;
 }
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 const DEFAULT_REASONING = (
   <>
@@ -59,13 +77,32 @@ export function AssistantPanel({
   autoReplyText = "I've updated the filters based on your request. Is there anything else you'd like to analyze regarding these transactions?",
   collapsed = false,
   onToggleCollapsed,
+  bootDelayMs = 0,
+  thinkingMs = 0,
   onSend,
 }: AssistantPanelProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>(bootDelayMs ? [] : initialMessages);
   const [input, setInput] = useState('');
   const [showReasoning, setShowReasoning] = useState(true);
   const [isReplying, setIsReplying] = useState(false);
+  const [booting, setBooting] = useState(bootDelayMs > 0);
+  const [actionRunning, setActionRunning] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Simulate the copilot spinning up: hold a typing indicator, then reveal the greeting.
+  useEffect(() => {
+    if (!bootDelayMs) return;
+    let active = true;
+    sleep(bootDelayMs).then(() => {
+      if (!active) return;
+      setMessages(initialMessages);
+      setBooting(false);
+    });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -77,6 +114,22 @@ export function AssistantPanel({
 
   const nowStamp = () =>
     new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  // Clicking a CTA streams its loading steps as status lines, then runs the action.
+  const runAction = async (action: MessageAction) => {
+    if (actionRunning) return;
+    const steps = action.loadingSteps ?? [];
+    if (steps.length) {
+      setActionRunning(true);
+      for (const step of steps) {
+        setMessages((prev) => [...prev, { role: 'status', content: step, timestamp: nowStamp() }]);
+        await sleep(950);
+      }
+      await sleep(250);
+      setActionRunning(false);
+    }
+    action.onClick();
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isReplying) return;
@@ -102,11 +155,15 @@ export function AssistantPanel({
         },
       };
       try {
-        const reply = await onSend(userText, nextHistory, ctx);
-        if (reply.trim()) {
+        const [reply] = await Promise.all([
+          onSend(userText, nextHistory, ctx),
+          thinkingMs ? sleep(thinkingMs) : Promise.resolve(),
+        ]);
+        const norm = typeof reply === 'string' ? { content: reply } : reply;
+        if (norm.content && norm.content.trim()) {
           setMessages((prev) => [
             ...prev,
-            { role: 'assistant', content: reply, timestamp: nowStamp() },
+            { role: 'assistant', content: norm.content, timestamp: nowStamp(), action: norm.action },
           ]);
         }
       } catch (err) {
@@ -236,6 +293,15 @@ export function AssistantPanel({
                 )}
               >
                 <div className="whitespace-pre-wrap">{msg.content}</div>
+                {msg.action && (
+                  <button
+                    onClick={() => runAction(msg.action!)}
+                    disabled={actionRunning}
+                    className="mt-2.5 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors active:scale-[0.98] shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {msg.action.label} <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
                 <div
                   className={cn(
                     'text-[10px] mt-1.5 opacity-70',
@@ -248,7 +314,7 @@ export function AssistantPanel({
             </div>
           );
         })}
-        {isReplying && (
+        {(isReplying || booting || actionRunning) && (
           <div className="flex gap-3">
             <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs bg-indigo-100 text-indigo-600">
               <Sparkles className="w-4 h-4" />

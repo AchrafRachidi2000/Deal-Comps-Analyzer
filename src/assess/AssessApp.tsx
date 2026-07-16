@@ -15,9 +15,10 @@ import {
   ArrowLeftRight,
   ShieldCheck,
   ExternalLink,
+  Scale,
+  ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DealCompsSection } from './DealCompsSection';
 import { AssistantPanel } from '@/shared/AssistantPanel';
 
 const DEAL_COMPS_INTENT = /(deal\s?comp|comparable|precedent|multiple|valuation|benchmark|ev\/)/i;
@@ -132,7 +133,6 @@ const SECTIONS = [
   { id: 'subsidiaries', label: 'Subsidiaries' },
   { id: 'people', label: 'Key people' },
   { id: 'transactions', label: 'Transactions' },
-  { id: 'deal-comps', label: 'Deal Comps' },
   { id: 'similar', label: 'Similar companies' },
   { id: 'news', label: 'News' },
   { id: 'swot', label: 'SWOT analysis' },
@@ -150,11 +150,12 @@ export function AssessApp({
   const [swotTab, setSwotTab] = useState<keyof typeof SWOT>('Strength');
   const [assistantCollapsed, setAssistantCollapsed] = useState(false);
 
-  const handleAssistantSend = async (userMessage: string, _history: unknown, ctx: { pushStatus: (t: string) => void }) => {
+  const handleAssistantSend = async (userMessage: string) => {
     if (DEAL_COMPS_INTENT.test(userMessage)) {
-      ctx.pushStatus(`Pre-generating screening filters for ${companyName}…`);
-      setTimeout(() => onGenerateDealComps?.(), 700);
-      return `Opening the Deal Comps sub-workflow for ${companyName} — validate the pre-generated filters (buyer type, revenue, EV/Revenue, EV/EBITDA) to review comparable precedent transactions.`;
+      return {
+        content: `Sure — I can benchmark ${companyName} against comparable precedent transactions. Opening the workflow will extract the screening criteria and build the filters. Ready when you are:`,
+        action: { label: 'Generate deal comps', onClick: () => onGenerateDealComps?.() },
+      };
     }
     if (/people|team|ceo|management|founder|leadership/i.test(userMessage)) {
       return `${companyName} is led by its CEO and a small executive team spanning finance, accounting and operations — see the Key people section for the full roster.`;
@@ -209,10 +210,7 @@ export function AssessApp({
                 <a
                   key={s.id}
                   href={`#${s.id}`}
-                  className={cn(
-                    'block px-3 py-1.5 rounded-md text-sm text-gray-500 hover:bg-white hover:text-gray-900 transition-colors',
-                    s.id === 'deal-comps' && 'text-indigo-600 font-medium'
-                  )}
+                  className="block px-3 py-1.5 rounded-md text-sm text-gray-500 hover:bg-white hover:text-gray-900 transition-colors"
                 >
                   {s.label}
                 </a>
@@ -354,10 +352,16 @@ export function AssessApp({
                   </table>
                 </div>
               </div>
+              {/* Deal Comps sub-workflow — a small contextual offer under the deals it extends */}
+              <button
+                onClick={() => onGenerateDealComps?.()}
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 group"
+              >
+                <Scale className="w-4 h-4" />
+                Benchmark against comparable deals
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </button>
             </Section>
-
-            {/* Deal Comps — right below Transactions */}
-            <DealCompsSection companyName={companyName} onGenerate={onGenerateDealComps ?? (() => {})} />
 
             {/* Similar companies */}
             <Section id="similar" title={`Similar companies · ${SIMILAR.length}`}>
@@ -444,12 +448,14 @@ export function AssessApp({
         title="Assess copilot"
         collapsed={assistantCollapsed}
         onToggleCollapsed={() => setAssistantCollapsed((c) => !c)}
+        bootDelayMs={1300}
+        thinkingMs={1100}
         reasoningContent={ASSIST_REASONING(companyName)}
         suggestedPrompts={['Generate deal comps', 'Summarize the business', 'Who are the key people?']}
         initialMessages={[
           {
             role: 'assistant',
-            content: `Hi — I'm your Assess copilot for ${companyName}. Ask me anything, or use a suggestion below.`,
+            content: `Hi — I'm your Assess copilot for ${companyName}. Ask me about the business, key people, or transactions. Tip: I can also benchmark it against comparable precedent deals — just ask.`,
             timestamp: '',
           },
         ]}

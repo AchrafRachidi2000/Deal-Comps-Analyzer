@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MotionConfig } from 'motion/react';
 import { Sidebar, Module } from '@/shared/Sidebar';
 import { HomePage } from '@/home/HomePage';
@@ -27,9 +27,28 @@ export default function App() {
   const [assistantCollapsed, setAssistantCollapsed] = useState(true);
   const toggleAssistant = () => setAssistantCollapsed((c) => !c);
 
+  // Drive the in-app view stack through the browser History API so the back /
+  // forward arrows walk through the app. Sub-modules that own their own history
+  // (e.g. the Deal Comps V1 wizard) push entries without a `stack`; we leave those
+  // to their handlers and only restore entries we created.
+  useEffect(() => {
+    window.history.replaceState({ stack: [{ kind: 'home' }] }, '');
+    const onPop = (e: PopStateEvent) => {
+      const next = (e.state as { stack?: View[] } | null)?.stack;
+      if (next && next.length) setStack(next);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   const view = stack[stack.length - 1];
-  const push = (v: View) => setStack((s) => [...s, v]);
-  const back = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+
+  const navigate = (next: View[]) => {
+    window.history.pushState({ stack: next }, '');
+    setStack(next);
+  };
+  const push = (v: View) => navigate([...stack, v]);
+  const back = () => window.history.back();
 
   const activeModule: Module =
     view.kind === 'home'
@@ -41,10 +60,10 @@ export default function App() {
           : 'dealV1';
 
   const onModuleChange = (m: Module) => {
-    if (m === 'home') setStack([{ kind: 'home' }]);
-    else if (m === 'assess') setStack([{ kind: 'assess', company: DEFAULT_COMPANY }]);
-    else if (m === 'deal') setStack([{ kind: 'deal' }]);
-    else setStack([{ kind: 'dealV1' }]);
+    if (m === 'home') navigate([{ kind: 'home' }]);
+    else if (m === 'assess') navigate([{ kind: 'assess', company: DEFAULT_COMPANY }]);
+    else if (m === 'deal') navigate([{ kind: 'deal' }]);
+    else navigate([{ kind: 'dealV1' }]);
   };
 
   return (

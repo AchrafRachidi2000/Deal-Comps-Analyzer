@@ -17,9 +17,10 @@ export function DealCompsV1App() {
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(() => defaultVisibleColumns());
   const [assistantCollapsed, setAssistantCollapsed] = useState(false);
 
-  // Sync the active view with browser history so the back/forward arrows work.
+  // Sync the wizard step with browser history so the back/forward arrows step
+  // through target → filters → dashboard. The App owns the top-level `stack`; we
+  // preserve it on every push so returning to this tab still restores the app view.
   useEffect(() => {
-    window.history.replaceState({ v: 'target' }, '');
     const onPop = (e: PopStateEvent) => {
       const v = e.state && (e.state as { v?: string }).v;
       setView(v === 'filters' || v === 'dashboard' ? v : 'target');
@@ -29,7 +30,8 @@ export function DealCompsV1App() {
   }, []);
 
   const navigate = (v: View) => {
-    window.history.pushState({ v }, '');
+    const cur = (window.history.state as Record<string, unknown>) || {};
+    window.history.pushState({ ...cur, v }, '');
     setView(v);
   };
 
@@ -66,6 +68,7 @@ export function DealCompsV1App() {
           />
           <AssistantPanel
             title="Deal Assistant"
+            bootDelayMs={900}
             initialMessages={[
               {
                 role: 'assistant',
@@ -106,6 +109,7 @@ export function DealCompsV1App() {
           />
           <AssistantPanel
             title="Deal Assistant"
+            bootDelayMs={900}
             initialMessages={[
               {
                 role: 'assistant',

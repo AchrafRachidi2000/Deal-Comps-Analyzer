@@ -106,7 +106,7 @@ export function HomePage({
             <div className="text-sm font-medium text-gray-500 mb-3">Recent artifacts</div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {ARTIFACTS.map((a) => (
-                <div key={a.title} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 hover:border-indigo-200 transition-colors">
+                <div key={a.title} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 hover:border-indigo-200 hover:shadow-md transition-all">
                   <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">{a.icon}</div>
                   <div className="text-sm font-semibold text-gray-900">{a.title}</div>
                   <div className="text-xs text-gray-500 mt-0.5">{a.kind}</div>
@@ -165,8 +165,10 @@ export function HomePage({
                       onClick={() => w.assess && onLaunchAssess(it.name)}
                       disabled={!w.assess}
                       className={cn(
-                        'w-full text-left bg-white rounded-lg border border-gray-200 px-3 py-2.5 transition-colors',
-                        w.assess ? 'hover:border-indigo-300 hover:bg-indigo-50/40 cursor-pointer' : 'cursor-default'
+                        'w-full text-left bg-white rounded-lg border border-gray-200 px-3 py-2.5 transition-all',
+                        w.assess
+                          ? 'hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm active:scale-[0.98] cursor-pointer'
+                          : 'cursor-default'
                       )}
                     >
                       <div className="flex items-center gap-1.5 text-sm font-medium text-gray-800">
@@ -255,7 +257,6 @@ function WorkflowModal({
           <div className="relative mt-1.5" ref={searchRef}>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             <input
-              autoFocus
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
